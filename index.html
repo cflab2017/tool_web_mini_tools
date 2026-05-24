@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>코딩나우 도구 모음 — 만 나이·연봉·이미지·글자수</title>
+<meta name="description" content="설치 없이 브라우저에서 바로 쓰는 무료 도구 모음. 만 나이 계산기, 연봉 실수령액 계산기, 이미지 포맷 변환기, 글자수 세기." />
+<meta property="og:title" content="코딩나우 도구 모음" />
+<meta property="og:description" content="설치 없이 브라우저에서 바로 쓰는 무료 도구 모음." />
+<meta property="og:type" content="website" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Gowun+Dodum&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#0b0a08; --panel:#141210; --panel-2:#1c1916;
+    --amber:#ffb000; --amber-dim:#b8801f; --amber-glow:rgba(255,176,0,.35);
+    --green:#5ddc7a; --red:#e0876a; --line:#2a251e; --muted:#7a6f5c; --text:#f3e7cf;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'JetBrains Mono','Gowun Dodum',monospace;line-height:1.55}
+  body{min-height:100vh;display:flex;flex-direction:column;position:relative;overflow-x:hidden}
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:50;
+    background:repeating-linear-gradient(to bottom, rgba(255,176,0,.04) 0 1px, transparent 1px 3px);
+    mix-blend-mode:multiply;
+  }
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:49;
+    background:radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.55) 100%);
+  }
+  .wrap{max-width:960px;width:100%;margin:0 auto;padding:32px 20px 24px;flex:1}
+  header.top{margin-bottom:32px}
+  .badge{display:inline-block;border:1px solid var(--line);color:var(--amber-dim);padding:4px 10px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;border-radius:2px}
+  h1{
+    font-family:'JetBrains Mono',monospace;
+    font-size:clamp(28px,4.5vw,40px);
+    color:var(--amber);
+    text-shadow:0 0 12px var(--amber-glow);
+    margin:14px 0 8px;
+    letter-spacing:-.01em;
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  }
+  h1 .cursor{display:inline-block;width:.55ch;background:var(--amber);height:1em;animation:blink 1s steps(1) infinite;box-shadow:0 0 10px var(--amber-glow);vertical-align:-.12em}
+  @keyframes blink{50%{opacity:0}}
+  .sub{color:var(--muted);font-family:'Gowun Dodum',sans-serif;font-size:15px;margin:0}
+  main{flex:1}
+  .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:28px}
+  @media (max-width:680px){ .grid{grid-template-columns:1fr} }
+  a.card{
+    display:block;text-decoration:none;color:inherit;
+    background:linear-gradient(180deg,var(--panel) 0%,var(--panel-2) 100%);
+    border:1px solid var(--line);border-radius:6px;
+    padding:20px;
+    transition:transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+    position:relative;overflow:hidden;
+  }
+  a.card::before{
+    content:"";position:absolute;inset:0;border-radius:6px;pointer-events:none;
+    background:linear-gradient(180deg,rgba(255,176,0,.06) 0%,transparent 40%);
+    opacity:0;transition:opacity .15s ease;
+  }
+  a.card:hover,a.card:focus-visible{
+    border-color:var(--amber);
+    transform:translateY(-2px);
+    box-shadow:0 6px 24px -10px var(--amber-glow), 0 0 0 1px var(--amber-glow);
+    outline:none;
+  }
+  a.card:hover::before,a.card:focus-visible::before{opacity:1}
+  .card-head{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+  .icon{
+    font-size:28px;width:46px;height:46px;display:inline-flex;align-items:center;justify-content:center;
+    background:var(--bg);border:1px solid var(--line);border-radius:4px;
+  }
+  .name{
+    font-family:'JetBrains Mono',monospace;color:var(--amber);font-weight:700;font-size:18px;letter-spacing:-.01em;
+    text-shadow:0 0 8px var(--amber-glow);
+  }
+  .desc{font-family:'Gowun Dodum',sans-serif;color:var(--text);font-size:14.5px;margin:0;opacity:.85}
+  .meta{
+    margin-top:14px;display:flex;align-items:center;justify-content:space-between;
+    color:var(--muted);font-size:12px;letter-spacing:.05em;
+  }
+  .meta .go{color:var(--amber-dim)}
+  footer{
+    border-top:1px solid var(--line);margin-top:32px;padding:14px 20px;
+    color:var(--muted);font-size:12px;letter-spacing:.06em;
+    display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;
+  }
+  footer a{color:var(--amber-dim);text-decoration:none}
+  footer a[aria-disabled="true"]{pointer-events:none;opacity:.4}
+  .prompt::before{content:"$ ";color:var(--amber-dim)}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <span class="badge">CODINGNOW · 도구 모음</span>
+      <h1><span class="prompt"></span>코딩나우 도구<span class="cursor" aria-hidden="true"></span></h1>
+      <p class="sub">필요한 도구를 골라 바로 쓰세요. 설치 없이, 무료로. 모든 계산은 브라우저에서만 처리됩니다.</p>
+    </header>
+
+    <main>
+      <div class="grid" role="list">
+        <a class="card" role="listitem" href="tools/age-calculator.html">
+          <div class="card-head">
+            <span class="icon" aria-hidden="true">🎂</span>
+            <span class="name">만 나이 계산기</span>
+          </div>
+          <p class="desc">생년월일로 만 나이와 다음 생일까지 D-day를 계산합니다.</p>
+          <div class="meta"><span>age-calculator</span><span class="go">열기 →</span></div>
+        </a>
+
+        <a class="card" role="listitem" href="tools/salary-calculator.html">
+          <div class="card-head">
+            <span class="icon" aria-hidden="true">💰</span>
+            <span class="name">연봉 실수령액 계산기</span>
+          </div>
+          <p class="desc">2026년 4대보험·세금 공제 후 월 실수령액을 계산합니다.</p>
+          <div class="meta"><span>salary-calculator</span><span class="go">열기 →</span></div>
+        </a>
+
+        <a class="card" role="listitem" href="tools/image-converter.html">
+          <div class="card-head">
+            <span class="icon" aria-hidden="true">🖼️</span>
+            <span class="name">이미지 포맷 변환기</span>
+          </div>
+          <p class="desc">PNG·JPG·WebP 변환과 압축, 업로드 없이 브라우저에서 처리합니다.</p>
+          <div class="meta"><span>image-converter</span><span class="go">열기 →</span></div>
+        </a>
+
+        <a class="card" role="listitem" href="tools/char-counter.html">
+          <div class="card-head">
+            <span class="icon" aria-hidden="true">🔤</span>
+            <span class="name">글자수 세기</span>
+          </div>
+          <p class="desc">공백 포함/제외 글자수, 바이트, 단어 수를 실시간으로 카운트합니다.</p>
+          <div class="meta"><span>char-counter</span><span class="go">열기 →</span></div>
+        </a>
+      </div>
+    </main>
+  </div>
+
+  <footer>
+    <span>CODINGNOW · 도구 모음</span>
+    <span><a id="donate" href="#" aria-disabled="true">☕ 후원하기</a></span>
+  </footer>
+
+  <script>
+    const DONATE_URL = "";
+    (function(){
+      const el = document.getElementById('donate');
+      if (DONATE_URL) { el.href = DONATE_URL; el.removeAttribute('aria-disabled'); el.target = "_blank"; el.rel = "noopener"; }
+    })();
+  </script>
+</body>
+</html>
