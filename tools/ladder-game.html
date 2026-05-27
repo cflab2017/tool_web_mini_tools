@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>사다리 게임 (사다리타기) — 코딩나우 도구</title>
+<meta name="description" content="최대 20명까지 이름과 도착지를 정하고 사다리타기로 결과를 뽑는 사다리 게임. 동시 출발·한명씩 출발·선택 출발, 사운드 효과 지원." />
+<meta property="og:title" content="사다리 게임 (사다리타기) — 코딩나우 도구" />
+<meta property="og:description" content="이름과 도착지를 정하고 사다리타기로 결과를 뽑아요. 최대 20명." />
+<meta property="og:type" content="website" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Gowun+Dodum&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#0b0a08; --panel:#141210; --panel-2:#1c1916;
+    --amber:#ffb000; --amber-dim:#b8801f; --amber-glow:rgba(255,176,0,.35);
+    --green:#5ddc7a; --red:#e0876a; --line:#2a251e; --muted:#7a6f5c; --text:#f3e7cf;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'JetBrains Mono','Gowun Dodum',monospace;line-height:1.55}
+  body{min-height:100vh;display:flex;flex-direction:column;position:relative;overflow-x:hidden}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:50;background:repeating-linear-gradient(to bottom, rgba(255,176,0,.04) 0 1px, transparent 1px 3px);mix-blend-mode:multiply}
+  body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:49;background:radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.55) 100%)}
+  .wrap{max-width:1040px;width:100%;margin:0 auto;padding:24px 20px;flex:1}
+  .back{display:inline-block;color:var(--amber-dim);text-decoration:none;font-size:13px;margin-bottom:14px;letter-spacing:.04em}
+  .back:hover{color:var(--amber)}
+  .badge{display:inline-block;border:1px solid var(--line);color:var(--amber-dim);padding:4px 10px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;border-radius:2px}
+  h1{font-family:'JetBrains Mono',monospace;font-size:clamp(26px,4.2vw,36px);color:var(--amber);text-shadow:0 0 12px var(--amber-glow);margin:12px 0 6px;letter-spacing:-.01em;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  h1 .cursor{display:inline-block;width:.55ch;background:var(--amber);height:1em;animation:blink 1s steps(1) infinite;box-shadow:0 0 10px var(--amber-glow);vertical-align:-.12em}
+  @keyframes blink{50%{opacity:0}}
+  .sub{color:var(--muted);font-family:'Gowun Dodum',sans-serif;font-size:14.5px;margin:0 0 24px}
+  .panel{background:linear-gradient(180deg,var(--panel) 0%,var(--panel-2) 100%);border:1px solid var(--line);border-radius:6px;padding:18px;margin-bottom:16px}
+
+  .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  .ctl{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);letter-spacing:.06em}
+  .stepper{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:4px;overflow:hidden}
+  .stepper button{background:var(--bg);color:var(--amber);border:none;width:34px;height:34px;font-size:18px;cursor:pointer;font-family:'JetBrains Mono',monospace;transition:background .12s ease}
+  .stepper button:hover{background:var(--panel-2)}
+  .stepper input{width:48px;height:34px;background:var(--bg);border:none;border-left:1px solid var(--line);border-right:1px solid var(--line);color:var(--text);text-align:center;font-family:'JetBrains Mono',monospace;font-size:15px}
+  .stepper input:focus{outline:none}
+  select{background:var(--bg);border:1px solid var(--line);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;padding:8px 10px;border-radius:4px;max-width:160px}
+  select:focus{outline:none;border-color:var(--amber);box-shadow:0 0 0 2px var(--amber-glow)}
+  .btn{background:var(--bg);border:1px solid var(--line);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;padding:9px 14px;border-radius:4px;cursor:pointer;letter-spacing:.04em;transition:border-color .12s ease,color .12s ease,box-shadow .12s ease}
+  .btn:hover:not(:disabled){border-color:var(--amber);color:var(--amber)}
+  .btn:focus-visible{outline:none;border-color:var(--amber);box-shadow:0 0 0 2px var(--amber-glow)}
+  .btn.primary{border-color:var(--amber);color:var(--amber);text-shadow:0 0 8px var(--amber-glow)}
+  .btn.primary:hover:not(:disabled){box-shadow:0 0 16px -4px var(--amber-glow)}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+  .sound{margin-left:auto}
+  .sound.on{border-color:var(--amber);color:var(--amber)}
+
+  .io-row{display:flex;gap:4px;margin:0}
+  .io-row.names{margin-bottom:6px}
+  .io-row.dests{margin-top:6px}
+  .io-row input{
+    flex:1 1 0;min-width:0;background:var(--bg);border:1px solid var(--line);color:var(--text);
+    font-family:'JetBrains Mono','Gowun Dodum',monospace;font-size:13px;padding:7px 4px;border-radius:4px;text-align:center;
+    transition:border-color .12s ease, box-shadow .12s ease;
+  }
+  .io-row input:focus{outline:none;border-color:var(--amber);box-shadow:0 0 0 2px var(--amber-glow)}
+  .io-row.dests input{border-color:rgba(184,128,31,.45);color:var(--amber-dim)}
+  .io-label{font-size:11px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;display:block}
+
+  .stage{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px;margin-top:4px}
+  canvas{display:block;width:100%;height:360px;cursor:pointer;border-radius:4px}
+
+  .results{margin-top:6px}
+  .results h2{font-size:12px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin:0 0 10px;font-family:'JetBrains Mono',monospace}
+  .res-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
+  .res-item{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 12px;font-size:13px}
+  .res-item .dot{width:12px;height:12px;border-radius:50%;flex:none}
+  .res-item .from{color:var(--text);font-family:'JetBrains Mono','Gowun Dodum',monospace}
+  .res-item .arrow{color:var(--muted)}
+  .res-item .to{color:var(--amber);font-family:'JetBrains Mono','Gowun Dodum',monospace;font-weight:700}
+  .res-empty{color:var(--muted);font-family:'Gowun Dodum',sans-serif;font-size:13px}
+
+  .note{font-family:'Gowun Dodum',sans-serif;color:var(--muted);font-size:13px;margin-top:14px;line-height:1.7}
+  footer{border-top:1px solid var(--line);margin-top:24px;padding:14px 20px;color:var(--muted);font-size:12px;letter-spacing:.06em;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+  footer a{color:var(--amber-dim);text-decoration:none}
+  footer a[aria-disabled="true"]{pointer-events:none;opacity:.4}
+  .prompt::before{content:"$ ";color:var(--amber-dim)}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="back" href="../index.html">← 도구 목록</a>
+    <span class="badge">CODINGNOW · 사다리 게임</span>
+    <h1><span class="prompt"></span>사다리 게임<span class="cursor" aria-hidden="true"></span></h1>
+    <p class="sub">이름과 도착지를 정하고 사다리타기로 결과를 뽑아요. 최대 20명, 동시·한명씩·선택 출발과 사운드 효과를 지원합니다.</p>
+
+    <section class="panel" aria-label="설정">
+      <div class="controls">
+        <div class="ctl">
+          <span>플레이어</span>
+          <div class="stepper">
+            <button id="minus" type="button" aria-label="감소">−</button>
+            <input id="count" type="number" min="2" max="20" value="4" inputmode="numeric" aria-label="플레이어 수" />
+            <button id="plus" type="button" aria-label="증가">+</button>
+          </div>
+          <span>명 (2~20)</span>
+        </div>
+        <button class="btn" id="regen" type="button">🪜 사다리 새로 생성</button>
+        <button class="btn sound on" id="sound" type="button" aria-pressed="true">🔊 사운드 ON</button>
+      </div>
+    </section>
+
+    <section class="panel" aria-label="사다리">
+      <span class="io-label">플레이어 (이름 입력)</span>
+      <div class="io-row names" id="names"></div>
+      <div class="stage">
+        <canvas id="cv" width="1000" height="360" aria-label="사다리 그림"></canvas>
+      </div>
+      <span class="io-label" style="margin-top:6px">도착지 (직접 입력)</span>
+      <div class="io-row dests" id="dests"></div>
+    </section>
+
+    <section class="panel" aria-label="출발">
+      <div class="controls">
+        <button class="btn primary" id="startAll" type="button">▶ 전체 동시 출발</button>
+        <button class="btn primary" id="startSeq" type="button">▶ 한명씩 출발</button>
+        <div class="ctl">
+          <span>선택 출발</span>
+          <select id="selPlayer" aria-label="선택 출발 플레이어"></select>
+          <button class="btn" id="startOne" type="button">▶ 출발</button>
+        </div>
+        <button class="btn" id="clearPaths" type="button">경로 지우기</button>
+      </div>
+      <p class="note">사다리 그림에서 위쪽 플레이어를 직접 클릭해도 그 사람만 출발합니다. 결과는 사다리 구조에 따라 정해지며, 새로 생성하면 경로가 바뀝니다.</p>
+    </section>
+
+    <section class="panel results" aria-label="결과">
+      <h2>결과</h2>
+      <div class="res-list" id="resList"><span class="res-empty">출발하면 도착 결과가 여기에 표시됩니다.</span></div>
+    </section>
+  </div>
+
+  <footer>
+    <span>CODINGNOW · 사다리 게임</span>
+    <span><a id="donate" href="#" aria-disabled="true">☕ 후원하기</a></span>
+  </footer>
+
+<script>
+  const DONATE_URL = "https://paypal.me/codingnow";
+  (function(){ const el=document.getElementById('donate'); if(DONATE_URL){el.href=DONATE_URL;el.removeAttribute('aria-disabled');el.target="_blank";el.rel="noopener";}})();
+
+  const $ = id => document.getElementById(id);
+  const cv = $('cv'), ctx = cv.getContext('2d');
+
+  const state = {
+    players: 4,
+    names: ['1','2','3','4'],
+    dests: ['', '', '', ''],
+    rungs: [],
+    levels: 10,
+    sound: true,
+  };
+
+  let tokens = [];        // active/finished animation tokens
+  let seqQueue = [];      // pending starts for one-by-one mode
+  let raf = null;
+  let lastTs = 0;
+  const SPEED = 0.34;     // px per ms
+
+  // ---------- layout ----------
+  let cssW = 1000, cssH = 360;
+  const topY = () => 30;
+  const botY = () => cssH - 30;
+  const colX = i => (i + 0.5) * cssW / state.players;
+  const levelY = l => topY() + (l + 1) * (botY() - topY()) / (state.levels + 1);
+
+  function colorOf(i){
+    return `hsl(${(i * 360 / Math.max(1, state.players) + 25) % 360}, 85%, 63%)`;
+  }
+
+  function resize(){
+    const dpr = window.devicePixelRatio || 1;
+    const rect = cv.getBoundingClientRect();
+    cssW = rect.width || 1000;
+    cssH = rect.height || 360;
+    cv.width = Math.round(cssW * dpr);
+    cv.height = Math.round(cssH * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    draw();
+  }
+
+  // ---------- ladder model ----------
+  function genRungs(){
+    const n = state.players;
+    const levels = Math.max(8, n * 2);
+    state.levels = levels;
+    const rungs = [];
+    for (let l = 0; l < levels; l++){
+      const row = new Array(Math.max(0, n - 1)).fill(false);
+      for (let g = 0; g < n - 1; g++){
+        if (g > 0 && row[g-1]) continue;      // no adjacent rungs at same level
+        if (Math.random() < 0.45) row[g] = true;
+      }
+      rungs.push(row);
+    }
+    state.rungs = rungs;
+  }
+
+  function buildPath(start){
+    const wps = [{ col: start, ny: 0 }];
+    let col = start;
+    const L = state.levels;
+    for (let l = 0; l < L; l++){
+      const ny = (l + 1) / (L + 1);
+      if (state.rungs[l][col]){
+        wps.push({ col, ny }); col++; wps.push({ col, ny });
+      } else if (col > 0 && state.rungs[l][col-1]){
+        wps.push({ col, ny }); col--; wps.push({ col, ny });
+      }
+    }
+    wps.push({ col, ny: 1 });
+    return { wps, end: col };
+  }
+
+  const pix = wp => ({ x: colX(wp.col), y: topY() + wp.ny * (botY() - topY()) });
+
+  // ---------- drawing ----------
+  function draw(){
+    ctx.clearRect(0, 0, cssW, cssH);
+    const n = state.players;
+
+    // vertical lines
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#3a3327';
+    for (let i = 0; i < n; i++){
+      const x = colX(i);
+      ctx.beginPath(); ctx.moveTo(x, topY()); ctx.lineTo(x, botY()); ctx.stroke();
+    }
+    // rungs
+    ctx.strokeStyle = '#5a4d34';
+    for (let l = 0; l < state.levels; l++){
+      const y = levelY(l);
+      for (let g = 0; g < n - 1; g++){
+        if (state.rungs[l] && state.rungs[l][g]){
+          ctx.beginPath(); ctx.moveTo(colX(g), y); ctx.lineTo(colX(g+1), y); ctx.stroke();
+        }
+      }
+    }
+    // token trails (revealed portion)
+    for (const t of tokens){
+      drawTrail(t);
+    }
+    // top & bottom nodes
+    for (let i = 0; i < n; i++){
+      const x = colX(i), c = colorOf(i);
+      ctx.fillStyle = c;
+      ctx.beginPath(); ctx.arc(x, topY(), 7, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#0b0a08';
+      ctx.font = '700 10px "JetBrains Mono",monospace';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(String(i+1), x, topY());
+      // bottom marker
+      ctx.fillStyle = '#3a3327';
+      ctx.fillRect(x-7, botY()-4, 14, 8);
+    }
+    // moving heads
+    for (const t of tokens){
+      if (!t.done){
+        const p = pointAt(t.wps, t.dist).point;
+        ctx.fillStyle = t.color;
+        ctx.beginPath(); ctx.arc(p.x, p.y, 7, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.lineWidth = 2; ctx.stroke();
+      }
+    }
+  }
+
+  function drawTrail(t){
+    ctx.strokeStyle = t.color;
+    ctx.lineWidth = 3.5;
+    ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    ctx.beginPath();
+    let remaining = t.done ? Infinity : t.dist;
+    let started = false;
+    for (let i = 0; i < t.wps.length - 1; i++){
+      const a = pix(t.wps[i]), b = pix(t.wps[i+1]);
+      const len = Math.hypot(b.x - a.x, b.y - a.y);
+      if (!started){ ctx.moveTo(a.x, a.y); started = true; }
+      if (remaining >= len){
+        ctx.lineTo(b.x, b.y); remaining -= len;
+      } else {
+        const f = len ? remaining / len : 0;
+        ctx.lineTo(a.x + (b.x-a.x)*f, a.y + (b.y-a.y)*f);
+        remaining = 0; break;
+      }
+    }
+    ctx.stroke();
+  }
+
+  function pointAt(wps, d){
+    for (let i = 0; i < wps.length - 1; i++){
+      const a = pix(wps[i]), b = pix(wps[i+1]);
+      const len = Math.hypot(b.x - a.x, b.y - a.y);
+      if (d <= len || i === wps.length - 2){
+        const f = len ? Math.min(1, d / len) : 0;
+        return { point: { x: a.x + (b.x-a.x)*f, y: a.y + (b.y-a.y)*f }, seg: i, atEnd: (i === wps.length - 2 && d >= len) };
+      }
+      d -= len;
+    }
+    const last = pix(wps[wps.length-1]);
+    return { point: last, seg: wps.length-2, atEnd: true };
+  }
+
+  function totalLen(wps){
+    let s = 0;
+    for (let i = 0; i < wps.length - 1; i++){
+      const a = pix(wps[i]), b = pix(wps[i+1]);
+      s += Math.hypot(b.x - a.x, b.y - a.y);
+    }
+    return s;
+  }
+
+  function isHorizontal(wps, seg){
+    if (seg < 0 || seg >= wps.length - 1) return false;
+    return wps[seg].ny === wps[seg+1].ny && wps[seg].col !== wps[seg+1].col;
+  }
+
+  // ---------- sound ----------
+  let actx = null;
+  function ensureAudio(){
+    if (!state.sound) return;
+    if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+    if (actx.state === 'suspended') actx.resume();
+  }
+  function beep(freq, dur=0.07, type='square', vol=0.06){
+    if (!state.sound || !actx) return;
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.type = type; o.frequency.value = freq;
+    o.connect(g); g.connect(actx.destination);
+    const t = actx.currentTime;
+    g.gain.setValueAtTime(vol, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.start(t); o.stop(t + dur);
+  }
+  function arrivalSound(){
+    if (!state.sound || !actx) return;
+    [523, 659, 784].forEach((f, i) => setTimeout(() => beep(f, 0.12, 'triangle', 0.07), i * 70));
+  }
+
+  // ---------- animation ----------
+  function makeToken(start){
+    const { wps, end } = buildPath(start);
+    return { start, wps, end, dist: 0, done: false, seg: 0, color: colorOf(start) };
+  }
+
+  function loop(ts){
+    if (!lastTs) lastTs = ts;
+    const dt = Math.min(50, ts - lastTs);
+    lastTs = ts;
+    let anyActive = false;
+
+    for (const t of tokens){
+      if (t.done) continue;
+      anyActive = true;
+      t.dist += SPEED * dt;
+      const info = pointAt(t.wps, t.dist);
+      if (info.seg > t.seg){
+        for (let s = t.seg + 1; s <= info.seg; s++){
+          if (isHorizontal(t.wps, s)) beep(420 + s * 18);
+        }
+        t.seg = info.seg;
+      }
+      if (info.atEnd){
+        t.done = true;
+        t.dist = totalLen(t.wps);
+        arrivalSound();
+        recordResult(t);
+        if (seqQueue.length){
+          const next = seqQueue.shift();
+          tokens.push(makeToken(next));
+        }
+      }
+    }
+    draw();
+    if (anyActive || seqQueue.length){
+      raf = requestAnimationFrame(loop);
+    } else {
+      raf = null; lastTs = 0;
+      draw();
+    }
+  }
+
+  function startLoop(){
+    if (!raf){ lastTs = 0; raf = requestAnimationFrame(loop); }
+  }
+
+  // ---------- results ----------
+  function recordResult(t){
+    const list = $('resList');
+    if (list.querySelector('.res-empty')) list.innerHTML = '';
+    if (list.querySelector(`[data-start="${t.start}"]`)) return;
+    const name = (state.names[t.start] || (t.start+1)).trim() || (t.start+1);
+    const dest = (state.dests[t.end] || `${t.end+1}번`).trim() || `${t.end+1}번`;
+    const item = document.createElement('div');
+    item.className = 'res-item';
+    item.dataset.start = t.start;
+    item.innerHTML = `<span class="dot" style="background:${t.color}"></span>` +
+      `<span class="from"></span><span class="arrow">→</span><span class="to"></span>`;
+    item.querySelector('.from').textContent = name;
+    item.querySelector('.to').textContent = dest;
+    list.appendChild(item);
+  }
+
+  function clearResults(){
+    $('resList').innerHTML = '<span class="res-empty">출발하면 도착 결과가 여기에 표시됩니다.</span>';
+  }
+
+  // ---------- starts ----------
+  function clearPaths(){
+    tokens = []; seqQueue = [];
+    clearResults();
+    draw();
+  }
+  function startAll(){
+    ensureAudio(); clearPaths();
+    for (let i = 0; i < state.players; i++) tokens.push(makeToken(i));
+    startLoop();
+  }
+  function startSeq(){
+    ensureAudio(); clearPaths();
+    seqQueue = [];
+    for (let i = 1; i < state.players; i++) seqQueue.push(i);
+    tokens.push(makeToken(0));
+    startLoop();
+  }
+  function startOne(idx){
+    ensureAudio();
+    if (idx < 0 || idx >= state.players) return;
+    if (tokens.some(t => t.start === idx && !t.done)) return;
+    tokens = tokens.filter(t => t.start !== idx);
+    const item = $('resList').querySelector(`[data-start="${idx}"]`);
+    if (item) item.remove();
+    if (!$('resList').children.length) clearResults();
+    tokens.push(makeToken(idx));
+    startLoop();
+  }
+
+  // ---------- inputs / UI ----------
+  function rebuildInputs(){
+    const namesEl = $('names'), destsEl = $('dests'), sel = $('selPlayer');
+    namesEl.innerHTML = ''; destsEl.innerHTML = ''; sel.innerHTML = '';
+    for (let i = 0; i < state.players; i++){
+      const ni = document.createElement('input');
+      ni.type = 'text'; ni.value = state.names[i] ?? String(i+1);
+      ni.placeholder = String(i+1); ni.maxLength = 10;
+      ni.addEventListener('input', () => {
+        state.names[i] = ni.value;
+        refreshSelect();
+      });
+      namesEl.appendChild(ni);
+
+      const di = document.createElement('input');
+      di.type = 'text'; di.value = state.dests[i] ?? '';
+      di.placeholder = `도착 ${i+1}`; di.maxLength = 12;
+      di.addEventListener('input', () => { state.dests[i] = di.value; });
+      destsEl.appendChild(di);
+    }
+    refreshSelect();
+  }
+
+  function refreshSelect(){
+    const sel = $('selPlayer');
+    const prev = sel.value;
+    sel.innerHTML = '';
+    for (let i = 0; i < state.players; i++){
+      const o = document.createElement('option');
+      o.value = i;
+      o.textContent = (state.names[i] || '').trim() || `${i+1}번`;
+      sel.appendChild(o);
+    }
+    if (prev && prev < state.players) sel.value = prev;
+  }
+
+  function setPlayers(n){
+    n = Math.max(2, Math.min(20, n|0));
+    const prevNames = state.names.slice(), prevDests = state.dests.slice();
+    state.players = n;
+    state.names = [];
+    state.dests = [];
+    for (let i = 0; i < n; i++){
+      state.names[i] = prevNames[i] !== undefined ? prevNames[i] : String(i+1);
+      state.dests[i] = prevDests[i] !== undefined ? prevDests[i] : '';
+    }
+    $('count').value = n;
+    genRungs();
+    rebuildInputs();
+    clearPaths();
+  }
+
+  // ---------- events ----------
+  $('minus').addEventListener('click', () => setPlayers(state.players - 1));
+  $('plus').addEventListener('click', () => setPlayers(state.players + 1));
+  $('count').addEventListener('change', () => setPlayers(parseInt($('count').value, 10) || 4));
+  $('regen').addEventListener('click', () => { genRungs(); clearPaths(); });
+  $('startAll').addEventListener('click', startAll);
+  $('startSeq').addEventListener('click', startSeq);
+  $('startOne').addEventListener('click', () => startOne(parseInt($('selPlayer').value, 10)));
+  $('clearPaths').addEventListener('click', clearPaths);
+
+  $('sound').addEventListener('click', () => {
+    state.sound = !state.sound;
+    const b = $('sound');
+    b.classList.toggle('on', state.sound);
+    b.setAttribute('aria-pressed', state.sound);
+    b.textContent = state.sound ? '🔊 사운드 ON' : '🔇 사운드 OFF';
+    if (state.sound) ensureAudio();
+  });
+
+  cv.addEventListener('click', e => {
+    const rect = cv.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    let best = 0, bestD = Infinity;
+    for (let i = 0; i < state.players; i++){
+      const d = Math.abs(colX(i) - x);
+      if (d < bestD){ bestD = d; best = i; }
+    }
+    startOne(best);
+  });
+
+  window.addEventListener('resize', resize);
+  if (window.ResizeObserver){ new ResizeObserver(resize).observe(cv); }
+
+  // init
+  genRungs();
+  rebuildInputs();
+  resize();
+</script>
+</body>
+</html>
