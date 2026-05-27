@@ -101,6 +101,7 @@
           <span>명 (2~20)</span>
         </div>
         <button class="btn" id="regen" type="button">🪜 사다리 새로 생성</button>
+        <button class="btn" id="coverToggle" type="button" aria-pressed="true">🙈 중간 가림 ON</button>
         <button class="btn sound on" id="sound" type="button" aria-pressed="true">🔊 사운드 ON</button>
       </div>
     </section>
@@ -154,6 +155,7 @@
     rungs: [],
     levels: 10,
     sound: true,
+    covered: true,
   };
 
   let tokens = [];        // active/finished animation tokens
@@ -231,15 +233,19 @@
       const x = colX(i);
       ctx.beginPath(); ctx.moveTo(x, topY()); ctx.lineTo(x, botY()); ctx.stroke();
     }
-    // rungs
-    ctx.strokeStyle = '#5a4d34';
-    for (let l = 0; l < state.levels; l++){
-      const y = levelY(l);
-      for (let g = 0; g < n - 1; g++){
-        if (state.rungs[l] && state.rungs[l][g]){
-          ctx.beginPath(); ctx.moveTo(colX(g), y); ctx.lineTo(colX(g+1), y); ctx.stroke();
+    // rungs (only when not covered)
+    if (!state.covered){
+      ctx.strokeStyle = '#5a4d34';
+      for (let l = 0; l < state.levels; l++){
+        const y = levelY(l);
+        for (let g = 0; g < n - 1; g++){
+          if (state.rungs[l] && state.rungs[l][g]){
+            ctx.beginPath(); ctx.moveTo(colX(g), y); ctx.lineTo(colX(g+1), y); ctx.stroke();
+          }
         }
       }
+    } else {
+      drawCurtain();
     }
     // token trails (revealed portion)
     for (const t of tokens){
@@ -266,6 +272,30 @@
         ctx.beginPath(); ctx.arc(p.x, p.y, 7, 0, Math.PI*2); ctx.fill();
         ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.lineWidth = 2; ctx.stroke();
       }
+    }
+  }
+
+  function drawCurtain(){
+    const y1 = topY() + 14, y2 = botY() - 14;
+    if (y2 - y1 < 10) return;
+    ctx.fillStyle = '#16130f';
+    ctx.fillRect(8, y1, cssW - 16, y2 - y1);
+    ctx.save();
+    ctx.beginPath(); ctx.rect(8, y1, cssW - 16, y2 - y1); ctx.clip();
+    ctx.strokeStyle = 'rgba(255,176,0,.05)'; ctx.lineWidth = 11;
+    for (let x = -(y2 - y1); x < cssW; x += 24){
+      ctx.beginPath(); ctx.moveTo(x, y1); ctx.lineTo(x + (y2 - y1), y2); ctx.stroke();
+    }
+    ctx.restore();
+    ctx.strokeStyle = '#5a4d34'; ctx.lineWidth = 1.5;
+    ctx.setLineDash([6, 5]);
+    ctx.strokeRect(8, y1, cssW - 16, y2 - y1);
+    ctx.setLineDash([]);
+    if (y2 - y1 > 40){
+      ctx.fillStyle = '#7a6f5c';
+      ctx.font = '700 13px "JetBrains Mono",monospace';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('🙈  사다리 가림 — 출발하면 지나간 길만 보여요', cssW / 2, (y1 + y2) / 2);
     }
   }
 
@@ -500,6 +530,14 @@
   $('startSeq').addEventListener('click', startSeq);
   $('startOne').addEventListener('click', () => startOne(parseInt($('selPlayer').value, 10)));
   $('clearPaths').addEventListener('click', clearPaths);
+
+  $('coverToggle').addEventListener('click', () => {
+    state.covered = !state.covered;
+    const b = $('coverToggle');
+    b.setAttribute('aria-pressed', state.covered);
+    b.textContent = state.covered ? '🙈 중간 가림 ON' : '👁 중간 가림 OFF';
+    draw();
+  });
 
   $('sound').addEventListener('click', () => {
     state.sound = !state.sound;
