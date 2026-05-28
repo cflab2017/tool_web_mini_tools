@@ -122,6 +122,27 @@
   a.list-row .row-go{color:var(--amber-dim);font-size:12px;flex:none}
   @media (max-width:560px){ a.list-row .row-desc{display:none} }
 
+  .group{margin-top:30px}
+  .group:first-child{margin-top:24px}
+  .group-title{
+    font-family:'JetBrains Mono',monospace;color:var(--amber);
+    font-size:14px;letter-spacing:.1em;margin:0;
+    display:flex;align-items:center;gap:10px;text-shadow:0 0 8px var(--amber-glow);
+  }
+  .group-title::before{content:"//";color:var(--amber-dim);text-shadow:none}
+  .group-title::after{content:"";flex:1;height:1px;background:var(--line)}
+  .group-title .gcount{color:var(--muted);font-size:12px;letter-spacing:.04em;text-shadow:none}
+  .group .grid{margin-top:14px}
+
+  .list-group-title{
+    font-family:'JetBrains Mono',monospace;color:var(--amber-dim);
+    font-size:12px;letter-spacing:.08em;margin:10px 0 2px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .list-group-title:first-child{margin-top:0}
+  .list-group-title::before{content:"//"}
+  .list-group-title::after{content:"";flex:1;height:1px;background:var(--line)}
+
   footer{
     border-top:1px solid var(--line);margin-top:32px;padding:14px 20px;
     color:var(--muted);font-size:12px;letter-spacing:.06em;
@@ -148,10 +169,10 @@
         </button>
       </div>
       <div class="toollist-wrap" id="toollistWrap">
-        <div class="toollist" id="toollist" role="list"></div>
+        <div class="toollist" id="toollist"></div>
       </div>
 
-      <div class="grid" id="grid" role="list"></div>
+      <div id="groups"></div>
     </main>
   </div>
 
@@ -170,7 +191,7 @@
 
     (function(){
       const tools = (typeof TOOLS !== 'undefined' && Array.isArray(TOOLS)) ? TOOLS : [];
-      const grid = document.getElementById('grid');
+      const groupsEl = document.getElementById('groups');
       const list = document.getElementById('toollist');
 
       function el(tag, cls, text){
@@ -180,8 +201,16 @@
         return n;
       }
 
+      // 그룹 순서는 배열에서 처음 등장한 순서를 따른다.
+      const order = [];
+      const byGroup = new Map();
       tools.forEach(t => {
-        // 카드
+        const g = t.group || '기타';
+        if (!byGroup.has(g)) { byGroup.set(g, []); order.push(g); }
+        byGroup.get(g).push(t);
+      });
+
+      function makeCard(t){
         const card = el('a', 'card'); card.href = t.href; card.setAttribute('role', 'listitem');
         const head = el('div', 'card-head');
         const ic = el('span', 'icon', t.icon); ic.setAttribute('aria-hidden', 'true');
@@ -193,16 +222,38 @@
         meta.appendChild(el('span', null, t.slug));
         meta.appendChild(el('span', 'go', '열기 →'));
         card.appendChild(meta);
-        grid.appendChild(card);
+        return card;
+      }
 
-        // 접이식 목록 행
+      function makeRow(t){
         const row = el('a', 'list-row'); row.href = t.href; row.setAttribute('role', 'listitem');
         const ri = el('span', 'row-icon', t.icon); ri.setAttribute('aria-hidden', 'true');
         row.appendChild(ri);
         row.appendChild(el('span', 'row-name', t.name));
         row.appendChild(el('span', 'row-desc', t.desc));
         row.appendChild(el('span', 'row-go', '열기 →'));
-        list.appendChild(row);
+        return row;
+      }
+
+      order.forEach(g => {
+        const items = byGroup.get(g);
+
+        // 그룹 섹션(카드)
+        const section = el('section', 'group');
+        const title = el('h2', 'group-title', g);
+        title.appendChild(el('span', 'gcount', items.length + '개'));
+        section.appendChild(title);
+        const grid = el('div', 'grid'); grid.setAttribute('role', 'list');
+        items.forEach(t => grid.appendChild(makeCard(t)));
+        section.appendChild(grid);
+        groupsEl.appendChild(section);
+
+        // 접이식 목록(그룹 라벨 + 행)
+        list.appendChild(el('div', 'list-group-title', g));
+        const sub = el('div', null); sub.setAttribute('role', 'list');
+        sub.style.display = 'flex'; sub.style.flexDirection = 'column'; sub.style.gap = '6px';
+        items.forEach(t => sub.appendChild(makeRow(t)));
+        list.appendChild(sub);
       });
 
       document.getElementById('toolCount').textContent = tools.length;
