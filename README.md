@@ -5,7 +5,8 @@
 ## 구성
 
 ```
-index.html                     ← 메인 (도구 목록)
+index.html                     ← 메인 (카드 + 접이식 도구 목록)
+tools.js                       ← 도구 레지스트리(단일 소스). 도구 추가 시 여기만 수정
 tools/
 ├─ age-calculator.html         ← 🎂 만 나이 계산기
 ├─ salary-calculator.html      ← 💰 연봉 실수령액 계산기 (2026년 기준)
@@ -13,6 +14,8 @@ tools/
 ├─ char-counter.html           ← 🔤 글자수 세기
 └─ ladder-game.html            ← 🪜 사다리 게임 (사다리타기)
 ```
+
+메인 페이지의 도구 카드와 "목록 열기/닫기" 접이식 목록은 모두 `tools.js`의 `TOOLS` 배열에서 렌더링됩니다. 새 도구를 추가하려면 도구 페이지를 `tools/`에 만들고 `TOOLS`에 항목 한 줄을 추가하면 됩니다.
 
 ## 도구별 요약
 
@@ -29,7 +32,7 @@ tools/
 - 다크 "앰버 CRT 터미널" 테마 (스캔라인 + 글로우)
 - `JetBrains Mono` + `Gowun Dodum` (Google Fonts)
 - 반응형: 데스크탑 2열 → 모바일 1열
-- 모든 HTML 파일이 독립 실행 가능 (CSS·JS 인라인)
+- 각 도구 페이지는 CSS·JS 인라인으로 독립 실행 가능. 메인(`index.html`)만 도구 목록 렌더링을 위해 `tools.js`를 함께 로드
 
 ## 사용법
 
