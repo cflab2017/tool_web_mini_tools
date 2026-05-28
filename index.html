@@ -139,6 +139,21 @@
   .group-title .gcount{color:var(--muted);font-size:12px;letter-spacing:.04em;text-shadow:none}
   .group .grid{margin-top:14px}
 
+  .support{
+    margin-top:34px;padding:16px 20px;border:1px solid var(--line);border-radius:6px;
+    background:linear-gradient(180deg,var(--panel) 0%,var(--panel-2) 100%);
+    display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+  }
+  .support-msg{font-family:'Gowun Dodum',sans-serif;color:var(--text);font-size:14px;opacity:.9}
+  .support-btn{
+    text-decoration:none;font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;
+    color:#0b0a08;background:var(--amber);padding:10px 18px;border-radius:5px;white-space:nowrap;
+    box-shadow:0 0 16px -4px var(--amber-glow);transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .support-btn:hover{transform:translateY(-1px);box-shadow:0 0 22px -4px var(--amber-glow)}
+  .support-btn:focus-visible{outline:none;box-shadow:0 0 0 3px var(--amber-glow)}
+  .support-btn[aria-disabled="true"]{pointer-events:none;opacity:.4}
+
   footer{
     border-top:1px solid var(--line);margin-top:32px;padding:14px 20px;
     color:var(--muted);font-size:12px;letter-spacing:.06em;
@@ -169,20 +184,27 @@
       </div>
 
       <div id="groups"></div>
+
+      <div class="support">
+        <span class="support-msg">이 도구들이 도움이 되었다면 ☕ 커피 한 잔으로 응원해 주세요.</span>
+        <a class="support-btn js-donate" href="#" aria-disabled="true">☕ 후원하기</a>
+      </div>
     </main>
   </div>
 
   <footer>
     <span>CODINGNOW · 도구 모음</span>
-    <span><a id="donate" href="#" aria-disabled="true">☕ 후원하기</a></span>
+    <span><a id="donate" class="js-donate" href="#" aria-disabled="true">☕ 후원하기</a></span>
   </footer>
 
   <script src="tools.js"></script>
   <script>
     const DONATE_URL = "https://paypal.me/codingnow";
     (function(){
-      const el = document.getElementById('donate');
-      if (DONATE_URL) { el.href = DONATE_URL; el.removeAttribute('aria-disabled'); el.target = "_blank"; el.rel = "noopener"; }
+      if (!DONATE_URL) return;
+      document.querySelectorAll('.js-donate').forEach(el => {
+        el.href = DONATE_URL; el.removeAttribute('aria-disabled'); el.target = "_blank"; el.rel = "noopener";
+      });
     })();
 
     (function(){
