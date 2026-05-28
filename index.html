@@ -143,8 +143,8 @@
     <main>
       <div class="list-bar">
         <span class="count">전체 도구 <b id="toolCount">0</b>개</span>
-        <button class="list-toggle" id="listToggle" type="button" aria-expanded="false" aria-controls="toollist">
-          목록 열기<span class="chev" aria-hidden="true">▾</span>
+        <button class="list-toggle" id="listToggle" type="button" aria-expanded="true" aria-controls="toollist">
+          목록 닫기<span class="chev" aria-hidden="true">▾</span>
         </button>
       </div>
       <div class="toollist-wrap" id="toollistWrap">
@@ -221,8 +221,8 @@
         if (btn.getAttribute('aria-expanded') === 'true') wrap.style.maxHeight = (list.scrollHeight + 8) + 'px';
       });
 
-      let initOpen = false;
-      try { initOpen = localStorage.getItem('toollistOpen') === '1'; } catch (e) {}
+      let initOpen = true;
+      try { const v = localStorage.getItem('toollistOpen'); if (v !== null) initOpen = v === '1'; } catch (e) {}
       setOpen(initOpen);
     })();
   </script>
