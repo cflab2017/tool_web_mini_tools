@@ -23,8 +23,14 @@
   body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:50;background:repeating-linear-gradient(to bottom, rgba(255,176,0,.04) 0 1px, transparent 1px 3px);mix-blend-mode:multiply}
   body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:49;background:radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.55) 100%)}
   .wrap{max-width:820px;width:100%;margin:0 auto;padding:24px 20px;flex:1}
-  .back{display:inline-block;color:var(--amber-dim);text-decoration:none;font-size:13px;margin-bottom:14px;letter-spacing:.04em}
+  .back{display:inline-block;color:var(--amber-dim);text-decoration:none;font-size:13px;letter-spacing:.04em}
   .back:hover{color:var(--amber)}
+  .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+  .lang{display:inline-flex;border:1px solid var(--line);border-radius:4px;overflow:hidden;flex:none}
+  .lang button{background:var(--bg);color:var(--muted);border:none;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.05em;padding:6px 11px;cursor:pointer;transition:background .12s ease,color .12s ease}
+  .lang button + button{border-left:1px solid var(--line)}
+  .lang button.on{background:var(--amber);color:#0b0a08;font-weight:700}
+  .lang button:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--amber-glow)}
   .badge{display:inline-block;border:1px solid var(--line);color:var(--amber-dim);padding:4px 10px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;border-radius:2px}
   h1{font-family:'JetBrains Mono',monospace;font-size:clamp(26px,4.2vw,36px);color:var(--amber);text-shadow:0 0 12px var(--amber-glow);margin:12px 0 6px;letter-spacing:-.01em;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
   h1 .cursor{display:inline-block;width:.55ch;background:var(--amber);height:1em;animation:blink 1s steps(1) infinite;box-shadow:0 0 10px var(--amber-glow);vertical-align:-.12em}
@@ -71,28 +77,28 @@
 </head>
 <body>
   <div class="wrap">
-    <a class="back" href="../index.html">← 도구 목록</a>
-    <span class="badge">CODINGNOW · 만 나이</span>
-    <h1><span class="prompt"></span>만 나이 계산기<span class="cursor" aria-hidden="true"></span></h1>
-    <p class="sub">생년월일과 기준일을 입력하면 만 나이, 다음 생일까지 D-day, 살아온 총 일수를 알려줍니다.</p>
+    <div class="bar"><a class="back" data-i18n="back" href="../index.html">← 도구 목록</a><div class="lang" role="group" aria-label="Language / 언어"><button type="button" data-lang="ko">KR</button><button type="button" data-lang="en">EN</button></div></div>
+    <span class="badge" data-i18n="badge">CODINGNOW · 만 나이</span>
+    <h1><span class="prompt"></span><span data-i18n="h1">만 나이 계산기</span><span class="cursor" aria-hidden="true"></span></h1>
+    <p class="sub" data-i18n="sub">생년월일과 기준일을 입력하면 만 나이, 다음 생일까지 D-day, 살아온 총 일수를 알려줍니다.</p>
 
     <section class="panel" aria-label="입력">
       <div class="row">
         <div class="field">
-          <label for="y">출생 연도</label>
-          <input id="y" type="number" min="1900" max="2100" placeholder="예: 1990" inputmode="numeric" />
+          <label for="y" data-i18n="lblYear">출생 연도</label>
+          <input id="y" type="number" min="1900" max="2100" placeholder="예: 1990" data-i18n-ph="phYear" inputmode="numeric" />
         </div>
         <div class="field">
-          <label for="m">월</label>
-          <input id="m" type="number" min="1" max="12" placeholder="1~12" inputmode="numeric" />
+          <label for="m" data-i18n="lblMonth">월</label>
+          <input id="m" type="number" min="1" max="12" placeholder="1~12" data-i18n-ph="phMonth" inputmode="numeric" />
         </div>
         <div class="field">
-          <label for="d">일</label>
-          <input id="d" type="number" min="1" max="31" placeholder="1~31" inputmode="numeric" />
+          <label for="d" data-i18n="lblDay">일</label>
+          <input id="d" type="number" min="1" max="31" placeholder="1~31" data-i18n-ph="phDay" inputmode="numeric" />
         </div>
       </div>
       <div class="ref">
-        <label for="ref">기준일</label>
+        <label for="ref" data-i18n="lblRef">기준일</label>
         <input id="ref" type="date" style="max-width:200px" />
       </div>
     </section>
@@ -100,28 +106,28 @@
     <section class="panel" aria-label="결과">
       <div class="out">
         <div class="big">
-          <div class="label">만 나이</div>
-          <div class="value"><span id="ageVal">–</span><span class="unit">세</span></div>
+          <div class="label" data-i18n="resAge">만 나이</div>
+          <div class="value"><span id="ageVal">–</span><span class="unit" data-i18n="unitAge">세</span></div>
         </div>
         <div class="stat">
-          <div class="label">다음 생일까지</div>
+          <div class="label" data-i18n="resDday">다음 생일까지</div>
           <div class="value amber" id="dday">–</div>
         </div>
         <div class="stat">
-          <div class="label">살아온 총 일수</div>
+          <div class="label" data-i18n="resDays">살아온 총 일수</div>
           <div class="value" id="days">–</div>
         </div>
         <div class="stat">
-          <div class="label">한국식 연 나이 (참고)</div>
+          <div class="label" data-i18n="resKage">한국식 연 나이 (참고)</div>
           <div class="value" id="kage">–</div>
         </div>
         <div class="stat">
-          <div class="label">다음 생일</div>
+          <div class="label" data-i18n="resNextBday">다음 생일</div>
           <div class="value" id="nextBday">–</div>
         </div>
       </div>
       <p class="note" id="msg">생년월일을 입력해주세요.</p>
-      <p class="note">
+      <p class="note" data-i18n-html="note">
         2023년 6월 28일 「만 나이 통일법」 시행 이후 행정·민사상 기준은 <strong style="color:var(--amber-dim)">만 나이</strong>입니다.
         <br />2월 29일생은 평년에는 3월 1일에 한 살을 더 먹는 것으로 계산합니다.
       </p>
@@ -129,8 +135,8 @@
   </div>
 
   <footer>
-    <span>CODINGNOW · 만 나이 계산기</span>
-    <span><a id="donate" href="#" aria-disabled="true">☕ 후원하기</a></span>
+    <span data-i18n="footer">CODINGNOW · 만 나이 계산기</span>
+    <span><a id="donate" data-i18n="donate" href="#" aria-disabled="true">☕ 후원하기</a></span>
   </footer>
 
 <script>
@@ -152,7 +158,70 @@
   const pad = n => String(n).padStart(2,'0');
   $ref.value = `${today.getFullYear()}-${pad(today.getMonth()+1)}-${pad(today.getDate())}`;
 
-  const nf = new Intl.NumberFormat('ko-KR');
+  // UI 문구 사전(ko/en).
+  const I18N = {
+    ko: {
+      title:"만 나이 계산기 — 코딩나우 도구",
+      back:"← 도구 목록",
+      badge:"CODINGNOW · 만 나이",
+      h1:"만 나이 계산기",
+      sub:"생년월일과 기준일을 입력하면 만 나이, 다음 생일까지 D-day, 살아온 총 일수를 알려줍니다.",
+      lblYear:"출생 연도", lblMonth:"월", lblDay:"일", lblRef:"기준일",
+      phYear:"예: 1990", phMonth:"1~12", phDay:"1~31",
+      resAge:"만 나이", resDday:"다음 생일까지", resDays:"살아온 총 일수",
+      resKage:"한국식 연 나이 (참고)", resNextBday:"다음 생일",
+      unitAge:"세",
+      footer:"CODINGNOW · 만 나이 계산기",
+      donate:"☕ 후원하기",
+      note:'2023년 6월 28일 「만 나이 통일법」 시행 이후 행정·민사상 기준은 <strong style="color:var(--amber-dim)">만 나이</strong>입니다.<br />2월 29일생은 평년에는 3월 1일에 한 살을 더 먹는 것으로 계산합니다.',
+      errBirth:"생년월일을 입력해주세요.",
+      errBirthInvalid:"올바른 생년월일이 아닙니다.",
+      errRefEmpty:"기준일을 선택해주세요.",
+      errRefInvalid:"기준일이 올바르지 않습니다.",
+      errFuture:"생년월일이 기준일보다 미래입니다.",
+      ddayToday:"🎉 오늘!",
+      dday:(n)=>`D-${nf.format(n)}`,
+      days:(n)=>`${nf.format(n)}일`,
+      kage:(n)=>`${nf.format(n)}세`,
+      leapNote:" (평년 대체)",
+      calcedFrom:(d)=>`기준일 <strong style="color:var(--amber-dim)">${d}</strong> 기준으로 계산했습니다.`,
+    },
+    en: {
+      title:"Age Calculator — CODINGNOW Tools",
+      back:"← Tools",
+      badge:"CODINGNOW · AGE",
+      h1:"Age Calculator",
+      sub:"Enter your date of birth and a reference date to get your age, the D-day to your next birthday, and total days lived.",
+      lblYear:"Birth year", lblMonth:"Month", lblDay:"Day", lblRef:"As of",
+      phYear:"e.g. 1990", phMonth:"1–12", phDay:"1–31",
+      resAge:"Age", resDday:"Until next birthday", resDays:"Total days lived",
+      resKage:"Korean age (for reference)", resNextBday:"Next birthday",
+      unitAge:"yrs",
+      footer:"CODINGNOW · Age Calculator",
+      donate:"☕ Donate",
+      note:'Since the Korean Unified Age Act took effect on June 28, 2023, the standard for administrative and civil matters is your <strong style="color:var(--amber-dim)">international age</strong>.<br />For those born on February 29, the birthday is counted on March 1 in common (non-leap) years.',
+      errBirth:"Please enter your date of birth.",
+      errBirthInvalid:"That is not a valid date of birth.",
+      errRefEmpty:"Please select a reference date.",
+      errRefInvalid:"The reference date is not valid.",
+      errFuture:"The date of birth is later than the reference date.",
+      ddayToday:"🎉 Today!",
+      dday:(n)=>`D-${nf.format(n)}`,
+      days:(n)=>`${nf.format(n)} days`,
+      kage:(n)=>`${nf.format(n)}`,
+      leapNote:" (common-year shift)",
+      calcedFrom:(d)=>`Calculated as of <strong style="color:var(--amber-dim)">${d}</strong>.`,
+    },
+  };
+
+  function detectLang(){
+    try { const s = localStorage.getItem('lang'); if (s === 'ko' || s === 'en') return s; } catch (e) {}
+    return (navigator.language || '').toLowerCase().startsWith('ko') ? 'ko' : 'en';
+  }
+  let lang = detectLang();
+  const L = () => I18N[lang];
+
+  let nf = new Intl.NumberFormat(lang === 'ko' ? 'ko-KR' : 'en-US');
 
   function isValidDate(y,m,d){
     if (!Number.isInteger(y)||!Number.isInteger(m)||!Number.isInteger(d)) return false;
@@ -185,20 +254,20 @@
     const d = parseInt($d.value,10);
     const refRaw = $ref.value;
     if (!$y.value || !$m.value || !$d.value){
-      reset('생년월일을 입력해주세요.'); return;
+      reset(L().errBirth); return;
     }
     if (!isValidDate(y,m,d)){
-      reset('올바른 생년월일이 아닙니다.', true); return;
+      reset(L().errBirthInvalid, true); return;
     }
-    if (!refRaw){ reset('기준일을 선택해주세요.', true); return; }
+    if (!refRaw){ reset(L().errRefEmpty, true); return; }
     const [ry,rm,rd] = refRaw.split('-').map(Number);
-    if (!isValidDate(ry,rm,rd)){ reset('기준일이 올바르지 않습니다.', true); return; }
+    if (!isValidDate(ry,rm,rd)){ reset(L().errRefInvalid, true); return; }
 
     const birthUTC = Date.UTC(y, m-1, d);
     const refUTC = Date.UTC(ry, rm-1, rd);
 
     if (birthUTC > refUTC){
-      reset('생년월일이 기준일보다 미래입니다.', true); return;
+      reset(L().errFuture, true); return;
     }
 
     let age = ry - y;
@@ -214,14 +283,14 @@
     const kage = ry - y + 1;
 
     $ageVal.textContent = nf.format(age);
-    $dday.textContent = ddayDays === 0 ? '🎉 오늘!' : `D-${nf.format(ddayDays)}`;
-    $days.textContent = `${nf.format(totalDays)}일`;
-    $kage.textContent = `${nf.format(kage)}세`;
+    $dday.textContent = ddayDays === 0 ? L().ddayToday : L().dday(ddayDays);
+    $days.textContent = L().days(totalDays);
+    $kage.textContent = L().kage(kage);
     const nbY = nb.getUTCFullYear(), nbM = nb.getUTCMonth()+1, nbD = nb.getUTCDate();
     let nbNote = '';
-    if (m===2 && d===29 && !isLeap(nbY)) nbNote = ' (평년 대체)';
+    if (m===2 && d===29 && !isLeap(nbY)) nbNote = L().leapNote;
     $nextBday.textContent = `${nbY}-${pad(nbM)}-${pad(nbD)}${nbNote}`;
-    $msg.innerHTML = `기준일 <strong style="color:var(--amber-dim)">${ry}-${pad(rm)}-${pad(rd)}</strong> 기준으로 계산했습니다.`;
+    $msg.innerHTML = L().calcedFrom(`${ry}-${pad(rm)}-${pad(rd)}`);
     $msg.classList.remove('warn');
   }
 
@@ -236,7 +305,38 @@
   }
 
   [$y,$m,$d,$ref].forEach(el => el.addEventListener('input', compute));
-  compute();
+
+  function applyLang(){
+    document.documentElement.lang = lang;
+    document.title = L().title;
+    nf = new Intl.NumberFormat(lang === 'ko' ? 'ko-KR' : 'en-US');
+    document.querySelectorAll('[data-i18n]').forEach(node => {
+      const v = L()[node.getAttribute('data-i18n')];
+      if (typeof v === 'string') node.textContent = v;
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach(node => {
+      const v = L()[node.getAttribute('data-i18n-html')];
+      if (typeof v === 'string') node.innerHTML = v;
+    });
+    document.querySelectorAll('[data-i18n-ph]').forEach(node => {
+      const v = L()[node.getAttribute('data-i18n-ph')];
+      if (typeof v === 'string') node.setAttribute('placeholder', v);
+    });
+    document.querySelectorAll('.lang button[data-lang]').forEach(b => b.classList.toggle('on', b.getAttribute('data-lang') === lang));
+    compute();
+  }
+
+  document.querySelectorAll('.lang button[data-lang]').forEach(b => {
+    b.addEventListener('click', () => {
+      const next = b.getAttribute('data-lang');
+      if (next === lang) return;
+      lang = next;
+      try { localStorage.setItem('lang', lang); } catch (e) {}
+      applyLang();
+    });
+  });
+
+  applyLang();
 </script>
 </body>
 </html>
