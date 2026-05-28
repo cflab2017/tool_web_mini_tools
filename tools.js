@@ -37,6 +37,17 @@ const TOOLS = [
     group_en: "Calculators",
   },
   {
+    icon: "📅",
+    name: "D-day 계산기",
+    desc: "목표일까지 남은 날(D-day), 기념일 마일스톤, 날짜 역계산을 한 번에.",
+    name_en: "D-day Counter",
+    desc_en: "Count down to a target date, track anniversary milestones, and do date math.",
+    slug: "dday-calculator",
+    href: "tools/dday-calculator.html",
+    group: "계산기 모음",
+    group_en: "Calculators",
+  },
+  {
     icon: "🪜",
     name: "사다리 게임",
     desc: "이름과 도착지를 정하고 사다리타기로 결과를 뽑아요. 최대 20명.",
