@@ -23,8 +23,14 @@
   body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:50;background:repeating-linear-gradient(to bottom, rgba(255,176,0,.04) 0 1px, transparent 1px 3px);mix-blend-mode:multiply}
   body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:49;background:radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.55) 100%)}
   .wrap{max-width:980px;width:100%;margin:0 auto;padding:24px 20px;flex:1}
-  .back{display:inline-block;color:var(--amber-dim);text-decoration:none;font-size:13px;margin-bottom:14px;letter-spacing:.04em}
+  .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+  .back{display:inline-block;color:var(--amber-dim);text-decoration:none;font-size:13px;letter-spacing:.04em}
   .back:hover{color:var(--amber)}
+  .lang{display:inline-flex;border:1px solid var(--line);border-radius:4px;overflow:hidden;flex:none}
+  .lang button{background:var(--bg);color:var(--muted);border:none;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.05em;padding:6px 11px;cursor:pointer;transition:background .12s ease,color .12s ease}
+  .lang button + button{border-left:1px solid var(--line)}
+  .lang button.on{background:var(--amber);color:#0b0a08;font-weight:700}
+  .lang button:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--amber-glow)}
   .badge{display:inline-block;border:1px solid var(--line);color:var(--amber-dim);padding:4px 10px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;border-radius:2px}
   h1{font-family:'JetBrains Mono',monospace;font-size:clamp(26px,4.2vw,36px);color:var(--amber);text-shadow:0 0 12px var(--amber-glow);margin:12px 0 6px;letter-spacing:-.01em;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
   h1 .cursor{display:inline-block;width:.55ch;background:var(--amber);height:1em;animation:blink 1s steps(1) infinite;box-shadow:0 0 10px var(--amber-glow);vertical-align:-.12em}
@@ -85,19 +91,25 @@
 </head>
 <body>
   <div class="wrap">
-    <a class="back" href="../index.html">← 도구 목록</a>
-    <span class="badge">CODINGNOW · 글자수</span>
-    <h1><span class="prompt"></span>글자수 세기<span class="cursor" aria-hidden="true"></span></h1>
-    <p class="sub">텍스트를 입력하면 글자수·바이트·단어·줄·문장 수를 실시간으로 계산합니다. 한글과 이모지를 정확히 한 글자로 셉니다.</p>
+    <div class="bar">
+      <a class="back" data-i18n="back" href="../index.html">← 도구 목록</a>
+      <div class="lang" role="group" aria-label="Language / 언어">
+        <button type="button" data-lang="ko">KR</button>
+        <button type="button" data-lang="en">EN</button>
+      </div>
+    </div>
+    <span class="badge" data-i18n="badge">CODINGNOW · 글자수</span>
+    <h1><span class="prompt"></span><span data-i18n="h1">글자수 세기</span><span class="cursor" aria-hidden="true"></span></h1>
+    <p class="sub" data-i18n="sub">텍스트를 입력하면 글자수·바이트·단어·줄·문장 수를 실시간으로 계산합니다. 한글과 이모지를 정확히 한 글자로 셉니다.</p>
 
     <section class="panel" aria-label="입력">
-      <textarea id="txt" placeholder="여기에 글을 입력하거나 붙여넣으세요."></textarea>
+      <textarea id="txt" data-i18n-ph="placeholder" placeholder="여기에 글을 입력하거나 붙여넣으세요."></textarea>
       <div class="toolbar">
-        <button class="btn" id="copy" type="button">복사</button>
-        <button class="btn" id="clear" type="button">지우기</button>
+        <button class="btn" id="copy" type="button" data-i18n="copy">복사</button>
+        <button class="btn" id="clear" type="button" data-i18n="clear">지우기</button>
         <label class="goal">
-          목표 글자수
-          <input id="goal" type="number" min="0" placeholder="예: 1000" inputmode="numeric" />
+          <span data-i18n="goalLabel">목표 글자수</span>
+          <input id="goal" type="number" min="0" data-i18n-ph="goalPh" placeholder="예: 1000" inputmode="numeric" />
         </label>
       </div>
       <div class="goalbar" id="goalbar"></div>
@@ -107,22 +119,22 @@
       <div class="stats">
         <div class="big">
           <div class="item">
-            <div class="label">공백 포함</div>
+            <div class="label" data-i18n="stAll">공백 포함</div>
             <div class="value" id="cAll">0</div>
           </div>
           <div class="item">
-            <div class="label">공백 제외</div>
+            <div class="label" data-i18n="stNoSp">공백 제외</div>
             <div class="value" id="cNoSp">0</div>
           </div>
         </div>
-        <div class="stat"><div class="label">바이트 (UTF-8)</div><div class="value" id="cByte">0</div></div>
-        <div class="stat"><div class="label">단어 수</div><div class="value" id="cWord">0</div></div>
-        <div class="stat"><div class="label">줄 수</div><div class="value" id="cLine">0</div></div>
-        <div class="stat"><div class="label">문장 수</div><div class="value" id="cSent">0</div></div>
-        <div class="stat"><div class="label">공백 수</div><div class="value" id="cSp">0</div></div>
-        <div class="stat"><div class="label">원고지 (200자)</div><div class="value" id="cManu">0</div></div>
+        <div class="stat"><div class="label" data-i18n="stByte">바이트 (UTF-8)</div><div class="value" id="cByte">0</div></div>
+        <div class="stat"><div class="label" data-i18n="stWord">단어 수</div><div class="value" id="cWord">0</div></div>
+        <div class="stat"><div class="label" data-i18n="stLine">줄 수</div><div class="value" id="cLine">0</div></div>
+        <div class="stat"><div class="label" data-i18n="stSent">문장 수</div><div class="value" id="cSent">0</div></div>
+        <div class="stat"><div class="label" data-i18n="stSp">공백 수</div><div class="value" id="cSp">0</div></div>
+        <div class="stat"><div class="label" data-i18n="stManu">원고지 (200자)</div><div class="value" id="cManu">0</div></div>
       </div>
-      <p class="note">
+      <p class="note" data-i18n-html="note">
         글자수는 유니코드 코드포인트 기준이라 이모지(예: 🎉) 한 개를 1자로 셉니다.
         바이트는 UTF-8 인코딩 기준(한글 1자 ≈ 3바이트, 영문 1자 = 1바이트)이며 SMS·DB 길이 산정에 참고하세요.
       </p>
@@ -132,8 +144,8 @@
   <div class="toast" id="toast">복사되었습니다</div>
 
   <footer>
-    <span>CODINGNOW · 글자수 세기</span>
-    <span><a id="donate" href="#" aria-disabled="true">☕ 후원하기</a></span>
+    <span data-i18n="footer">CODINGNOW · 글자수 세기</span>
+    <span><a id="donate" data-i18n="donate" href="#" aria-disabled="true">☕ 후원하기</a></span>
   </footer>
 
 <script>
@@ -152,7 +164,72 @@
   const $cSp = document.getElementById('cSp');
   const $cManu = document.getElementById('cManu');
   const enc = new TextEncoder();
-  const nf = new Intl.NumberFormat('ko-KR');
+  let nf = new Intl.NumberFormat('ko-KR');
+
+  // UI 문구 사전(ko/en). 동적 문구는 함수로 저장.
+  const I18N = {
+    ko: {
+      title:"글자수 세기 — 코딩나우 도구",
+      back:"← 도구 목록",
+      badge:"CODINGNOW · 글자수",
+      h1:"글자수 세기",
+      sub:"텍스트를 입력하면 글자수·바이트·단어·줄·문장 수를 실시간으로 계산합니다. 한글과 이모지를 정확히 한 글자로 셉니다.",
+      placeholder:"여기에 글을 입력하거나 붙여넣으세요.",
+      copy:"복사",
+      clear:"지우기",
+      goalLabel:"목표 글자수",
+      goalPh:"예: 1000",
+      stAll:"공백 포함",
+      stNoSp:"공백 제외",
+      stByte:"바이트 (UTF-8)",
+      stWord:"단어 수",
+      stLine:"줄 수",
+      stSent:"문장 수",
+      stSp:"공백 수",
+      stManu:"원고지 (200자)",
+      note:"글자수는 유니코드 코드포인트 기준이라 이모지(예: 🎉) 한 개를 1자로 셉니다.\n        바이트는 UTF-8 인코딩 기준(한글 1자 ≈ 3바이트, 영문 1자 = 1바이트)이며 SMS·DB 길이 산정에 참고하세요.",
+      footer:"CODINGNOW · 글자수 세기",
+      donate:"☕ 후원하기",
+      toastCopied:"복사되었습니다",
+      goalRemain:(g,diff,pct)=>`목표 <strong>${nf.format(g)}</strong>자까지 <strong>${nf.format(diff)}</strong>자 남음 (${pct}%)`,
+      goalExact:(g)=>`🎯 목표 <strong>${nf.format(g)}</strong>자에 정확히 도달!`,
+      goalOver:(g,over,pct)=>`목표 <strong>${nf.format(g)}</strong>자에서 <strong>${nf.format(over)}</strong>자 초과 (${pct}%)`,
+    },
+    en: {
+      title:"Character Counter — CODINGNOW Tools",
+      back:"← Tools",
+      badge:"CODINGNOW · COUNT",
+      h1:"Character Counter",
+      sub:"Type or paste text to count characters, bytes, words, lines and sentences in real time. Korean and emoji each count as a single character.",
+      placeholder:"Type or paste your text here.",
+      copy:"Copy",
+      clear:"Clear",
+      goalLabel:"Goal length",
+      goalPh:"e.g. 1000",
+      stAll:"With spaces",
+      stNoSp:"Without spaces",
+      stByte:"Bytes (UTF-8)",
+      stWord:"Words",
+      stLine:"Lines",
+      stSent:"Sentences",
+      stSp:"Spaces",
+      stManu:"Manuscript (200 ch)",
+      note:"Characters are counted by Unicode code point, so one emoji (e.g. 🎉) counts as a single character.\n        Bytes follow UTF-8 encoding (Korean ≈ 3 bytes/char, Latin = 1 byte/char) — handy for SMS or DB length limits.",
+      footer:"CODINGNOW · CHARACTER COUNTER",
+      donate:"☕ Donate",
+      toastCopied:"Copied",
+      goalRemain:(g,diff,pct)=>`<strong>${nf.format(diff)}</strong> of <strong>${nf.format(g)}</strong> chars to go (${pct}%)`,
+      goalExact:(g)=>`🎯 Exactly hit the goal of <strong>${nf.format(g)}</strong> chars!`,
+      goalOver:(g,over,pct)=>`<strong>${nf.format(over)}</strong> chars over the goal of <strong>${nf.format(g)}</strong> (${pct}%)`,
+    },
+  };
+
+  function detectLang(){
+    try { const s = localStorage.getItem('lang'); if (s === 'ko' || s === 'en') return s; } catch (e) {}
+    return (navigator.language || '').toLowerCase().startsWith('ko') ? 'ko' : 'en';
+  }
+  let lang = detectLang();
+  const L = () => I18N[lang];
 
   function count(text){
     const chars = Array.from(text);
@@ -186,11 +263,12 @@
     $goalbar.classList.add('on');
     const diff = g - all;
     const pct = Math.min(100, Math.max(0, (all/g)*100));
+    const pctStr = pct.toFixed(1);
     const label = diff > 0
-      ? `목표 <strong>${nf.format(g)}</strong>자까지 <strong>${nf.format(diff)}</strong>자 남음 (${pct.toFixed(1)}%)`
+      ? L().goalRemain(g, diff, pctStr)
       : diff === 0
-        ? `🎯 목표 <strong>${nf.format(g)}</strong>자에 정확히 도달!`
-        : `목표 <strong>${nf.format(g)}</strong>자에서 <strong>${nf.format(-diff)}</strong>자 초과 (${pct.toFixed(1)}%)`;
+        ? L().goalExact(g)
+        : L().goalOver(g, -diff, pctStr);
     $goalbar.innerHTML = `${label}<div class="track"><div class="fill" style="width:${pct}%"></div></div>`;
   }
 
@@ -212,14 +290,44 @@
   document.getElementById('copy').addEventListener('click', async () => {
     try {
       await navigator.clipboard.writeText($txt.value);
-      toast('복사되었습니다');
+      toast(L().toastCopied);
     } catch {
       $txt.select(); document.execCommand('copy');
-      toast('복사되었습니다');
+      toast(L().toastCopied);
     }
   });
 
-  update();
+  function applyLang(){
+    document.documentElement.lang = lang;
+    document.title = L().title;
+    nf = new Intl.NumberFormat(lang === 'ko' ? 'ko-KR' : 'en-US');
+    document.querySelectorAll('[data-i18n]').forEach(node => {
+      const v = L()[node.getAttribute('data-i18n')];
+      if (typeof v === 'string') node.textContent = v;
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach(node => {
+      const v = L()[node.getAttribute('data-i18n-html')];
+      if (typeof v === 'string') node.innerHTML = v;
+    });
+    document.querySelectorAll('[data-i18n-ph]').forEach(node => {
+      const v = L()[node.getAttribute('data-i18n-ph')];
+      if (typeof v === 'string') node.setAttribute('placeholder', v);
+    });
+    document.querySelectorAll('.lang button[data-lang]').forEach(b => b.classList.toggle('on', b.getAttribute('data-lang') === lang));
+    update();
+  }
+
+  document.querySelectorAll('.lang button[data-lang]').forEach(b => {
+    b.addEventListener('click', () => {
+      const next = b.getAttribute('data-lang');
+      if (next === lang) return;
+      lang = next;
+      try { localStorage.setItem('lang', lang); } catch (e) {}
+      applyLang();
+    });
+  });
+
+  applyLang();
 </script>
 </body>
 </html>

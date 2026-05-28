@@ -33,6 +33,7 @@ tools/
 - `JetBrains Mono` + `Gowun Dodum` (Google Fonts)
 - 반응형: 데스크탑 2열 → 모바일 1열
 - 각 도구 페이지는 CSS·JS 인라인으로 독립 실행 가능. 메인(`index.html`)만 도구 목록 렌더링을 위해 `tools.js`를 함께 로드
+- KR/EN 언어 토글: 메인 + 만 나이·글자수·사다리 게임 지원. 첫 진입 시 브라우저 언어 자동감지, 선택은 `localStorage`(`lang` 키)로 모든 페이지에 공유. 연봉 실수령액 계산기는 한국 제도 전용이라 한국어로 유지
 
 ## 사용법
 

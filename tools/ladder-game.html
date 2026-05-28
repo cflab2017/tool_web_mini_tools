@@ -23,7 +23,13 @@
   body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:50;background:repeating-linear-gradient(to bottom, rgba(255,176,0,.04) 0 1px, transparent 1px 3px);mix-blend-mode:multiply}
   body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:49;background:radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.55) 100%)}
   .wrap{max-width:1040px;width:100%;margin:0 auto;padding:24px 20px;flex:1}
-  .back{display:inline-block;color:var(--amber-dim);text-decoration:none;font-size:13px;margin-bottom:14px;letter-spacing:.04em}
+  .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+  .lang{display:inline-flex;border:1px solid var(--line);border-radius:4px;overflow:hidden;flex:none}
+  .lang button{background:var(--bg);color:var(--muted);border:none;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.05em;padding:6px 11px;cursor:pointer;transition:background .12s ease,color .12s ease}
+  .lang button + button{border-left:1px solid var(--line)}
+  .lang button.on{background:var(--amber);color:#0b0a08;font-weight:700}
+  .lang button:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--amber-glow)}
+  .back{display:inline-block;color:var(--amber-dim);text-decoration:none;font-size:13px;letter-spacing:.04em}
   .back:hover{color:var(--amber)}
   .badge{display:inline-block;border:1px solid var(--line);color:var(--amber-dim);padding:4px 10px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;border-radius:2px}
   h1{font-family:'JetBrains Mono',monospace;font-size:clamp(26px,4.2vw,36px);color:var(--amber);text-shadow:0 0 12px var(--amber-glow);margin:12px 0 6px;letter-spacing:-.01em;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
@@ -84,61 +90,67 @@
 </head>
 <body>
   <div class="wrap">
-    <a class="back" href="../index.html">← 도구 목록</a>
-    <span class="badge">CODINGNOW · 사다리 게임</span>
-    <h1><span class="prompt"></span>사다리 게임<span class="cursor" aria-hidden="true"></span></h1>
-    <p class="sub">이름과 도착지를 정하고 사다리타기로 결과를 뽑아요. 최대 20명, 동시·한명씩·선택 출발과 사운드 효과를 지원합니다.</p>
+    <div class="bar">
+      <a class="back" data-i18n="back" href="../index.html">← 도구 목록</a>
+      <div class="lang" role="group" aria-label="Language / 언어">
+        <button type="button" data-lang="ko">KR</button>
+        <button type="button" data-lang="en">EN</button>
+      </div>
+    </div>
+    <span class="badge" data-i18n="badge">CODINGNOW · 사다리 게임</span>
+    <h1><span class="prompt"></span><span data-i18n="h1">사다리 게임</span><span class="cursor" aria-hidden="true"></span></h1>
+    <p class="sub" data-i18n="sub">이름과 도착지를 정하고 사다리타기로 결과를 뽑아요. 최대 20명, 동시·한명씩·선택 출발과 사운드 효과를 지원합니다.</p>
 
     <section class="panel" aria-label="설정">
       <div class="controls">
         <div class="ctl">
-          <span>플레이어</span>
+          <span data-i18n="player">플레이어</span>
           <div class="stepper">
             <button id="minus" type="button" aria-label="감소">−</button>
             <input id="count" type="number" min="2" max="20" value="4" inputmode="numeric" aria-label="플레이어 수" />
             <button id="plus" type="button" aria-label="증가">+</button>
           </div>
-          <span>명 (2~20)</span>
+          <span data-i18n="playerRange">명 (2~20)</span>
         </div>
-        <button class="btn" id="regen" type="button">🪜 사다리 새로 생성</button>
+        <button class="btn" id="regen" type="button" data-i18n="regen">🪜 사다리 새로 생성</button>
         <button class="btn" id="coverToggle" type="button" aria-pressed="true">🙈 중간 가림 ON</button>
         <button class="btn sound on" id="sound" type="button" aria-pressed="true">🔊 사운드 ON</button>
       </div>
     </section>
 
     <section class="panel" aria-label="사다리">
-      <span class="io-label">플레이어 (이름 입력)</span>
+      <span class="io-label" data-i18n="namesLabel">플레이어 (이름 입력)</span>
       <div class="io-row names" id="names"></div>
       <div class="stage">
         <canvas id="cv" width="1000" height="360" aria-label="사다리 그림"></canvas>
       </div>
-      <span class="io-label" style="margin-top:6px">도착지 (직접 입력)</span>
+      <span class="io-label" style="margin-top:6px" data-i18n="destsLabel">도착지 (직접 입력)</span>
       <div class="io-row dests" id="dests"></div>
     </section>
 
     <section class="panel" aria-label="출발">
       <div class="controls">
-        <button class="btn primary" id="startAll" type="button">▶ 전체 동시 출발</button>
-        <button class="btn primary" id="startSeq" type="button">▶ 한명씩 출발</button>
+        <button class="btn primary" id="startAll" type="button" data-i18n="startAll">▶ 전체 동시 출발</button>
+        <button class="btn primary" id="startSeq" type="button" data-i18n="startSeq">▶ 한명씩 출발</button>
         <div class="ctl">
-          <span>선택 출발</span>
+          <span data-i18n="selectStart">선택 출발</span>
           <select id="selPlayer" aria-label="선택 출발 플레이어"></select>
-          <button class="btn" id="startOne" type="button">▶ 출발</button>
+          <button class="btn" id="startOne" type="button" data-i18n="startOne">▶ 출발</button>
         </div>
-        <button class="btn" id="clearPaths" type="button">경로 지우기</button>
+        <button class="btn" id="clearPaths" type="button" data-i18n="clearPaths">경로 지우기</button>
       </div>
-      <p class="note">사다리 그림에서 위쪽 플레이어를 직접 클릭해도 그 사람만 출발합니다. 결과는 사다리 구조에 따라 정해지며, 새로 생성하면 경로가 바뀝니다.</p>
+      <p class="note" data-i18n="note">사다리 그림에서 위쪽 플레이어를 직접 클릭해도 그 사람만 출발합니다. 결과는 사다리 구조에 따라 정해지며, 새로 생성하면 경로가 바뀝니다.</p>
     </section>
 
     <section class="panel results" aria-label="결과">
-      <h2>결과</h2>
+      <h2 data-i18n="resultsTitle">결과</h2>
       <div class="res-list" id="resList"><span class="res-empty">출발하면 도착 결과가 여기에 표시됩니다.</span></div>
     </section>
   </div>
 
   <footer>
-    <span>CODINGNOW · 사다리 게임</span>
-    <span><a id="donate" href="#" aria-disabled="true">☕ 후원하기</a></span>
+    <span data-i18n="footer">CODINGNOW · 사다리 게임</span>
+    <span><a id="donate" data-i18n="donate" href="#" aria-disabled="true">☕ 후원하기</a></span>
   </footer>
 
 <script>
@@ -147,6 +159,75 @@
 
   const $ = id => document.getElementById(id);
   const cv = $('cv'), ctx = cv.getContext('2d');
+
+  // UI 문구 사전(ko/en).
+  const I18N = {
+    ko: {
+      title:"사다리 게임 (사다리타기) — 코딩나우 도구",
+      back:"← 도구 목록",
+      badge:"CODINGNOW · 사다리 게임",
+      h1:"사다리 게임",
+      sub:"이름과 도착지를 정하고 사다리타기로 결과를 뽑아요. 최대 20명, 동시·한명씩·선택 출발과 사운드 효과를 지원합니다.",
+      player:"플레이어",
+      playerRange:"명 (2~20)",
+      regen:"🪜 사다리 새로 생성",
+      coverOn:"🙈 중간 가림 ON",
+      coverOff:"👁 중간 가림 OFF",
+      soundOn:"🔊 사운드 ON",
+      soundOff:"🔇 사운드 OFF",
+      namesLabel:"플레이어 (이름 입력)",
+      destsLabel:"도착지 (직접 입력)",
+      startAll:"▶ 전체 동시 출발",
+      startSeq:"▶ 한명씩 출발",
+      selectStart:"선택 출발",
+      startOne:"▶ 출발",
+      clearPaths:"경로 지우기",
+      note:"사다리 그림에서 위쪽 플레이어를 직접 클릭해도 그 사람만 출발합니다. 결과는 사다리 구조에 따라 정해지며, 새로 생성하면 경로가 바뀝니다.",
+      resultsTitle:"결과",
+      resEmpty:"출발하면 도착 결과가 여기에 표시됩니다.",
+      curtain:"🙈  사다리 가림 — 출발하면 지나간 길만 보여요",
+      footer:"CODINGNOW · 사다리 게임",
+      donate:"☕ 후원하기",
+      destPh:(i)=>`도착 ${i}`,
+      slot:(i)=>`${i}번`,
+    },
+    en: {
+      title:"Ladder Game (Ghost Leg) — CODINGNOW Tools",
+      back:"← Tools",
+      badge:"CODINGNOW · LADDER",
+      h1:"Ladder Game",
+      sub:"Set names and goals, then draw the result with a ghost-leg ladder. Up to 20 players, with all-at-once, one-by-one and pick-a-player starts plus sound effects.",
+      player:"Players",
+      playerRange:"people (2~20)",
+      regen:"🪜 New ladder",
+      coverOn:"🙈 Cover ON",
+      coverOff:"👁 Cover OFF",
+      soundOn:"🔊 Sound ON",
+      soundOff:"🔇 Sound OFF",
+      namesLabel:"Players (enter names)",
+      destsLabel:"Goals (enter manually)",
+      startAll:"▶ Start all",
+      startSeq:"▶ One by one",
+      selectStart:"Pick & start",
+      startOne:"▶ Go",
+      clearPaths:"Clear paths",
+      note:"You can also click a player at the top of the ladder to start just that one. Results are fixed by the ladder structure, and regenerating changes the paths.",
+      resultsTitle:"Results",
+      resEmpty:"Once you start, the arrival results will appear here.",
+      curtain:"🙈  Ladder hidden — only the path you walk is revealed",
+      footer:"CODINGNOW · LADDER",
+      donate:"☕ Donate",
+      destPh:(i)=>`Goal ${i}`,
+      slot:(i)=>`#${i}`,
+    },
+  };
+
+  function detectLang(){
+    try{const s=localStorage.getItem('lang'); if(s==='ko'||s==='en')return s;}catch(e){}
+    return (navigator.language||'').toLowerCase().startsWith('ko')?'ko':'en';
+  }
+  let lang = detectLang();
+  const L = () => I18N[lang];
 
   const state = {
     players: 4,
@@ -295,7 +376,7 @@
       ctx.fillStyle = '#7a6f5c';
       ctx.font = '700 13px "JetBrains Mono",monospace';
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText('🙈  사다리 가림 — 출발하면 지나간 길만 보여요', cssW / 2, (y1 + y2) / 2);
+      ctx.fillText(L().curtain, cssW / 2, (y1 + y2) / 2);
     }
   }
 
@@ -424,7 +505,7 @@
     if (list.querySelector('.res-empty')) list.innerHTML = '';
     if (list.querySelector(`[data-start="${t.start}"]`)) return;
     const name = (state.names[t.start] || (t.start+1)).trim() || (t.start+1);
-    const dest = (state.dests[t.end] || `${t.end+1}번`).trim() || `${t.end+1}번`;
+    const dest = (state.dests[t.end] || L().slot(t.end+1)).trim() || L().slot(t.end+1);
     const item = document.createElement('div');
     item.className = 'res-item';
     item.dataset.start = t.start;
@@ -436,7 +517,11 @@
   }
 
   function clearResults(){
-    $('resList').innerHTML = '<span class="res-empty">출발하면 도착 결과가 여기에 표시됩니다.</span>';
+    const span = document.createElement('span');
+    span.className = 'res-empty';
+    span.textContent = L().resEmpty;
+    $('resList').innerHTML = '';
+    $('resList').appendChild(span);
   }
 
   // ---------- starts ----------
@@ -485,7 +570,7 @@
 
       const di = document.createElement('input');
       di.type = 'text'; di.value = state.dests[i] ?? '';
-      di.placeholder = `도착 ${i+1}`; di.maxLength = 12;
+      di.placeholder = L().destPh(i+1); di.maxLength = 12;
       di.addEventListener('input', () => { state.dests[i] = di.value; });
       destsEl.appendChild(di);
     }
@@ -499,7 +584,7 @@
     for (let i = 0; i < state.players; i++){
       const o = document.createElement('option');
       o.value = i;
-      o.textContent = (state.names[i] || '').trim() || `${i+1}번`;
+      o.textContent = (state.names[i] || '').trim() || L().slot(i+1);
       sel.appendChild(o);
     }
     if (prev && prev < state.players) sel.value = prev;
@@ -535,7 +620,7 @@
     state.covered = !state.covered;
     const b = $('coverToggle');
     b.setAttribute('aria-pressed', state.covered);
-    b.textContent = state.covered ? '🙈 중간 가림 ON' : '👁 중간 가림 OFF';
+    b.textContent = state.covered ? L().coverOn : L().coverOff;
     draw();
   });
 
@@ -544,7 +629,7 @@
     const b = $('sound');
     b.classList.toggle('on', state.sound);
     b.setAttribute('aria-pressed', state.sound);
-    b.textContent = state.sound ? '🔊 사운드 ON' : '🔇 사운드 OFF';
+    b.textContent = state.sound ? L().soundOn : L().soundOff;
     if (state.sound) ensureAudio();
   });
 
@@ -562,10 +647,41 @@
   window.addEventListener('resize', resize);
   if (window.ResizeObserver){ new ResizeObserver(resize).observe(cv); }
 
+  // ---------- i18n apply ----------
+  function applyLang(){
+    document.documentElement.lang = lang;
+    document.title = L().title;
+    document.querySelectorAll('[data-i18n]').forEach(node => {
+      const v = L()[node.getAttribute('data-i18n')];
+      if (typeof v === 'string') node.textContent = v;
+    });
+    document.querySelectorAll('.lang button[data-lang]').forEach(b => b.classList.toggle('on', b.getAttribute('data-lang') === lang));
+    // stateful button labels
+    $('coverToggle').textContent = state.covered ? L().coverOn : L().coverOff;
+    $('sound').textContent = state.sound ? L().soundOn : L().soundOff;
+    // refresh dynamically-created placeholders + select options
+    rebuildInputs();
+    // refresh results-empty text if currently empty
+    if ($('resList').querySelector('.res-empty')) clearResults();
+    // redraw canvas so the curtain text re-renders in the chosen language
+    draw();
+  }
+
+  document.querySelectorAll('.lang button[data-lang]').forEach(b => {
+    b.addEventListener('click', () => {
+      const next = b.getAttribute('data-lang');
+      if (next === lang) return;
+      lang = next;
+      try { localStorage.setItem('lang', lang); } catch (e) {}
+      applyLang();
+    });
+  });
+
   // init
   genRungs();
   rebuildInputs();
   resize();
+  applyLang();
 </script>
 </body>
 </html>
