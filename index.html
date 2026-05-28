@@ -32,6 +32,12 @@
   .wrap{max-width:960px;width:100%;margin:0 auto;padding:32px 20px 24px;flex:1}
   header.top{margin-bottom:32px}
   .badge{display:inline-block;border:1px solid var(--line);color:var(--amber-dim);padding:4px 10px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;border-radius:2px}
+  .top-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .lang{display:inline-flex;border:1px solid var(--line);border-radius:4px;overflow:hidden;flex:none}
+  .lang button{background:var(--bg);color:var(--muted);border:none;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.05em;padding:6px 11px;cursor:pointer;transition:background .12s ease,color .12s ease}
+  .lang button + button{border-left:1px solid var(--line)}
+  .lang button.on{background:var(--amber);color:#0b0a08;font-weight:700}
+  .lang button:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--amber-glow)}
   h1{
     font-family:'JetBrains Mono',monospace;
     font-size:clamp(28px,4.5vw,40px);
@@ -167,16 +173,22 @@
 <body>
   <div class="wrap">
     <header class="top">
-      <span class="badge">CODINGNOW · 도구 모음</span>
-      <h1><span class="prompt"></span>코딩나우 도구<span class="cursor" aria-hidden="true"></span></h1>
-      <p class="sub">필요한 도구를 골라 바로 쓰세요. 설치 없이, 무료로. 모든 계산은 브라우저에서만 처리됩니다.</p>
+      <div class="top-row">
+        <span class="badge" data-i18n="badge">CODINGNOW · 도구 모음</span>
+        <div class="lang" role="group" aria-label="Language / 언어">
+          <button type="button" data-lang="ko">KR</button>
+          <button type="button" data-lang="en">EN</button>
+        </div>
+      </div>
+      <h1><span class="prompt"></span><span id="h1text" data-i18n="h1">코딩나우 도구</span><span class="cursor" aria-hidden="true"></span></h1>
+      <p class="sub" data-i18n="sub">필요한 도구를 골라 바로 쓰세요. 설치 없이, 무료로. 모든 계산은 브라우저에서만 처리됩니다.</p>
     </header>
 
     <main>
       <div class="list-bar">
-        <span class="count">전체 도구 <b id="toolCount">0</b>개</span>
+        <span class="count" id="countText"></span>
         <button class="list-toggle" id="listToggle" type="button" aria-expanded="true" aria-controls="toollist">
-          목록 닫기<span class="chev" aria-hidden="true">▾</span>
+          <span class="lt-label"></span><span class="chev" aria-hidden="true">▾</span>
         </button>
       </div>
       <div class="toollist-wrap" id="toollistWrap">
@@ -186,15 +198,15 @@
       <div id="groups"></div>
 
       <div class="support">
-        <span class="support-msg">이 도구들이 도움이 되었다면 ☕ 커피 한 잔으로 응원해 주세요.</span>
-        <a class="support-btn js-donate" href="#" aria-disabled="true">☕ 후원하기</a>
+        <span class="support-msg" data-i18n="supportMsg">이 도구들이 도움이 되었다면 ☕ 커피 한 잔으로 응원해 주세요.</span>
+        <a class="support-btn js-donate" data-i18n="supportBtn" href="#" aria-disabled="true">☕ 후원하기</a>
       </div>
     </main>
   </div>
 
   <footer>
-    <span>CODINGNOW · 도구 모음</span>
-    <span><a id="donate" class="js-donate" href="#" aria-disabled="true">☕ 후원하기</a></span>
+    <span data-i18n="footer">CODINGNOW · 도구 모음</span>
+    <span><a id="donate" class="js-donate" data-i18n="supportBtn" href="#" aria-disabled="true">☕ 후원하기</a></span>
   </footer>
 
   <script src="tools.js"></script>
@@ -211,6 +223,48 @@
       const tools = (typeof TOOLS !== 'undefined' && Array.isArray(TOOLS)) ? TOOLS : [];
       const groupsEl = document.getElementById('groups');
       const list = document.getElementById('toollist');
+      const wrap = document.getElementById('toollistWrap');
+      const btn = document.getElementById('listToggle');
+
+      // UI 문구 사전(ko/en).
+      const I18N = {
+        ko: {
+          badge:"CODINGNOW · 도구 모음",
+          h1:"코딩나우 도구",
+          sub:"필요한 도구를 골라 바로 쓰세요. 설치 없이, 무료로. 모든 계산은 브라우저에서만 처리됩니다.",
+          listOpen:"목록 열기", listClose:"목록 닫기",
+          open:"열기 →",
+          count:(n)=>`전체 도구 ${n}개`,
+          gcount:(n)=>`${n}개`,
+          supportMsg:"이 도구들이 도움이 되었다면 ☕ 커피 한 잔으로 응원해 주세요.",
+          supportBtn:"☕ 후원하기",
+          footer:"CODINGNOW · 도구 모음",
+          title:"만 나이·연봉 실수령액·글자수 계산기 모음 | 코딩나우",
+        },
+        en: {
+          badge:"CODINGNOW · TOOLS",
+          h1:"CODINGNOW Tools",
+          sub:"Pick a tool and use it right away — free, no install. Everything runs in your browser.",
+          listOpen:"Show list", listClose:"Hide list",
+          open:"Open →",
+          count:(n)=>`${n} tools`,
+          gcount:(n)=>`${n}`,
+          supportMsg:"If these tools helped, support me with a ☕ coffee.",
+          supportBtn:"☕ Donate",
+          footer:"CODINGNOW · TOOLS",
+          title:"Age, Net Salary & Character Counter — Free Online Tools | CODINGNOW",
+        },
+      };
+
+      function detectLang(){
+        try { const s = localStorage.getItem('lang'); if (s === 'ko' || s === 'en') return s; } catch (e) {}
+        return (navigator.language || '').toLowerCase().startsWith('ko') ? 'ko' : 'en';
+      }
+      let lang = detectLang();
+      const L = () => I18N[lang];
+      const tname = t => (lang === 'en' ? (t.name_en || t.name) : t.name);
+      const tdesc = t => (lang === 'en' ? (t.desc_en || t.desc) : t.desc);
+      const tglabel = t => (lang === 'en' ? (t.group_en || t.group) : t.group);
 
       function el(tag, cls, text){
         const n = document.createElement(tag);
@@ -219,33 +273,24 @@
         return n;
       }
 
-      // 그룹별 아이콘(인라인 SVG, currentColor 사용). 새 그룹은 _default로 표시된다.
+      // 그룹별 아이콘(인라인 SVG, currentColor 사용). 한국어 그룹명을 키로 쓰고, 새 그룹은 _default.
       const GROUP_ICONS = {
         "계산기 모음": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="2"/><rect x="8" y="6" width="8" height="3.5" rx="0.5"/><line x1="8" y1="14" x2="8.01" y2="14"/><line x1="12" y1="14" x2="12.01" y2="14"/><line x1="16" y1="14" x2="16.01" y2="14"/><line x1="8" y1="18" x2="8.01" y2="18"/><line x1="12" y1="18" x2="12.01" y2="18"/><line x1="16" y1="18" x2="16.01" y2="18"/></svg>',
         "미니 게임": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="7" width="20" height="11" rx="5.5"/><line x1="6.5" y1="12.5" x2="9.5" y2="12.5"/><line x1="8" y1="11" x2="8" y2="14"/><line x1="15.5" y1="11.5" x2="15.51" y2="11.5"/><line x1="17.5" y1="13.5" x2="17.51" y2="13.5"/></svg>',
         _default: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>',
       };
 
-      // 그룹 순서는 배열에서 처음 등장한 순서를 따른다.
-      const order = [];
-      const byGroup = new Map();
-      tools.forEach(t => {
-        const g = t.group || '기타';
-        if (!byGroup.has(g)) { byGroup.set(g, []); order.push(g); }
-        byGroup.get(g).push(t);
-      });
-
       function makeCard(t){
         const card = el('a', 'card'); card.href = t.href; card.setAttribute('role', 'listitem');
         const head = el('div', 'card-head');
         const ic = el('span', 'icon', t.icon); ic.setAttribute('aria-hidden', 'true');
         head.appendChild(ic);
-        head.appendChild(el('span', 'name', t.name));
+        head.appendChild(el('span', 'name', tname(t)));
         card.appendChild(head);
-        card.appendChild(el('p', 'desc', t.desc));
+        card.appendChild(el('p', 'desc', tdesc(t)));
         const meta = el('div', 'meta');
         meta.appendChild(el('span', null, t.slug));
-        meta.appendChild(el('span', 'go', '열기 →'));
+        meta.appendChild(el('span', 'go', L().open));
         card.appendChild(meta);
         return card;
       }
@@ -254,52 +299,82 @@
         const row = el('a', 'list-row'); row.href = t.href; row.setAttribute('role', 'listitem');
         const ri = el('span', 'row-icon', t.icon); ri.setAttribute('aria-hidden', 'true');
         row.appendChild(ri);
-        row.appendChild(el('span', 'row-name', t.name));
-        row.appendChild(el('span', 'row-desc', t.desc));
-        row.appendChild(el('span', 'row-go', '열기 →'));
+        row.appendChild(el('span', 'row-name', tname(t)));
+        row.appendChild(el('span', 'row-desc', tdesc(t)));
+        row.appendChild(el('span', 'row-go', L().open));
         return row;
       }
 
-      order.forEach(g => {
-        const items = byGroup.get(g);
-
-        // 그룹 섹션(카드만 그룹화)
-        const section = el('section', 'group');
-        const title = el('h2', 'group-title');
-        const gi = el('span', 'gi'); gi.setAttribute('aria-hidden', 'true');
-        gi.innerHTML = GROUP_ICONS[g] || GROUP_ICONS._default;
-        title.appendChild(gi);
-        title.appendChild(el('span', 'gname', g));
-        title.appendChild(el('span', 'gcount', items.length + '개'));
-        section.appendChild(title);
-        const grid = el('div', 'grid'); grid.setAttribute('role', 'list');
-        items.forEach(t => grid.appendChild(makeCard(t)));
-        section.appendChild(grid);
-        groupsEl.appendChild(section);
-      });
-
-      // 접이식 목록은 그룹 없이 평평하게
-      tools.forEach(t => list.appendChild(makeRow(t)));
-
-      document.getElementById('toolCount').textContent = tools.length;
+      function renderTools(){
+        groupsEl.innerHTML = '';
+        list.innerHTML = '';
+        const order = [];
+        const byGroup = new Map();
+        tools.forEach(t => {
+          const g = t.group || '기타';
+          if (!byGroup.has(g)) { byGroup.set(g, []); order.push(g); }
+          byGroup.get(g).push(t);
+        });
+        order.forEach(g => {
+          const items = byGroup.get(g);
+          const section = el('section', 'group');
+          const title = el('h2', 'group-title');
+          const gi = el('span', 'gi'); gi.setAttribute('aria-hidden', 'true');
+          gi.innerHTML = GROUP_ICONS[g] || GROUP_ICONS._default;
+          title.appendChild(gi);
+          title.appendChild(el('span', 'gname', tglabel(items[0])));
+          title.appendChild(el('span', 'gcount', L().gcount(items.length)));
+          section.appendChild(title);
+          const grid = el('div', 'grid'); grid.setAttribute('role', 'list');
+          items.forEach(t => grid.appendChild(makeCard(t)));
+          section.appendChild(grid);
+          groupsEl.appendChild(section);
+        });
+        // 접이식 목록은 그룹 없이 평평하게
+        tools.forEach(t => list.appendChild(makeRow(t)));
+        document.getElementById('countText').textContent = L().count(tools.length);
+      }
 
       // 접이식 토글
-      const wrap = document.getElementById('toollistWrap');
-      const btn = document.getElementById('listToggle');
-      function setOpen(open){
-        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-        btn.childNodes[0].nodeValue = open ? '목록 닫기' : '목록 열기';
-        wrap.style.maxHeight = open ? (list.scrollHeight + 8) + 'px' : '0px';
-        try { localStorage.setItem('toollistOpen', open ? '1' : '0'); } catch (e) {}
+      let isOpen = true;
+      try { const v = localStorage.getItem('toollistOpen'); if (v !== null) isOpen = v === '1'; } catch (e) {}
+      const ltLabel = btn.querySelector('.lt-label');
+      function applyOpen(){
+        btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        ltLabel.textContent = isOpen ? L().listClose : L().listOpen;
+        wrap.style.maxHeight = isOpen ? (list.scrollHeight + 8) + 'px' : '0px';
       }
-      btn.addEventListener('click', () => setOpen(btn.getAttribute('aria-expanded') !== 'true'));
-      window.addEventListener('resize', () => {
-        if (btn.getAttribute('aria-expanded') === 'true') wrap.style.maxHeight = (list.scrollHeight + 8) + 'px';
+      function setOpen(open){
+        isOpen = open;
+        try { localStorage.setItem('toollistOpen', open ? '1' : '0'); } catch (e) {}
+        applyOpen();
+      }
+      btn.addEventListener('click', () => setOpen(!isOpen));
+      window.addEventListener('resize', () => { if (isOpen) wrap.style.maxHeight = (list.scrollHeight + 8) + 'px'; });
+
+      function applyLang(){
+        document.documentElement.lang = lang;
+        document.title = L().title;
+        document.querySelectorAll('[data-i18n]').forEach(node => {
+          const v = L()[node.getAttribute('data-i18n')];
+          if (typeof v === 'string') node.textContent = v;
+        });
+        document.querySelectorAll('.lang button').forEach(b => b.classList.toggle('on', b.getAttribute('data-lang') === lang));
+        renderTools();
+        applyOpen();
+      }
+
+      document.querySelectorAll('.lang button').forEach(b => {
+        b.addEventListener('click', () => {
+          const next = b.getAttribute('data-lang');
+          if (next === lang) return;
+          lang = next;
+          try { localStorage.setItem('lang', lang); } catch (e) {}
+          applyLang();
+        });
       });
 
-      let initOpen = true;
-      try { const v = localStorage.getItem('toollistOpen'); if (v !== null) initOpen = v === '1'; } catch (e) {}
-      setOpen(initOpen);
+      applyLang();
     })();
   </script>
 </body>
