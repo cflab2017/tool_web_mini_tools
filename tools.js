@@ -16,13 +16,6 @@ const TOOLS = [
     href: "tools/salary-calculator.html",
   },
   {
-    icon: "🖼️",
-    name: "이미지 포맷 변환기",
-    desc: "PNG·JPG·WebP 변환과 압축, 업로드 없이 브라우저에서 처리합니다.",
-    slug: "image-converter",
-    href: "tools/image-converter.html",
-  },
-  {
     icon: "🔤",
     name: "글자수 세기",
     desc: "공백 포함/제외 글자수, 바이트, 단어 수를 실시간으로 카운트합니다.",
