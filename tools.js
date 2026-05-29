@@ -58,4 +58,15 @@ const TOOLS = [
     group: "미니 게임",
     group_en: "Mini Games",
   },
+  {
+    icon: "🎱",
+    name: "로또 추첨기",
+    desc: "로또 6/45 번호를 자동으로 추첨. 고정·제외 번호와 추첨 연출까지.",
+    name_en: "Lotto Generator",
+    desc_en: "Draw Korean Lotto 6/45 numbers with fixed/excluded picks and an animated draw.",
+    slug: "lotto-generator",
+    href: "tools/lotto-generator.html",
+    group: "미니 게임",
+    group_en: "Mini Games",
+  },
 ];
