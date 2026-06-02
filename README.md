@@ -4,6 +4,8 @@
 
 # 코딩나우 도구 모음 (tool_web_mini_tools)
 
+> 🌐 **Live (English): [www.coding-now.com/mini-tools/index.html?lang=en](https://www.coding-now.com/mini-tools/index.html?lang=en)**
+
 설치 없이 브라우저에서 바로 쓰는 무료 도구 모음. 모든 계산·변환은 클라이언트에서 완결되므로 별도 서버·빌드 도구 없이 정적 호스팅이 가능합니다.
 
 ## 구성
